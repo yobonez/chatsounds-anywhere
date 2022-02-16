@@ -157,6 +157,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <Text Include="LICENSE">
+      <FileType>Document</FileType>
+    </Text>
     <ClCompile Include="src\proc.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SDL2ChatSounds.cpp" />

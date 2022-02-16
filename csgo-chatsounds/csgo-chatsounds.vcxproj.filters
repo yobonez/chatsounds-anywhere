@@ -36,4 +36,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="LICENSE">
+      <Filter>Source Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>
