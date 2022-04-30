@@ -3,7 +3,6 @@
 #include <regex>
 #include <filesystem>
 #include <windows.h>
-#include <thread>
 
 #include "SDL2ChatSounds.h"
 #include "proc.h"
@@ -32,24 +31,69 @@ std::string trim(const std::string& s)
 	}
 }
 
-void vectorSortDescending (std::vector<std::pair<size_t, std::string>>& nameAndSize_ref)
+/*Gets the nameAndSize vector with chatsounds name lenghts and names itself and fills it.
+  Returns vector with names and paths that will be used in later code to not
+  search for the same chatsounds over again*/
+std::multimap<std::string, std::string> loadAndSortDescending (std::vector<std::pair<size_t, std::string>>& nameAndSize_ref)
 {
-	std::string path("C:/Users/bonzo/Desktop/csgo-chatsounds/chatsounds-polskisandbox/sounds/chatsounds");
+	// chatsoundy sa zapisywane z nazw¹ samego numerka np. 1.ogg w przypadku gdy to jest podfolder z roznymi
+	// wersjami tego samego chatsounda, trzeba podmienic na ta sama nazwe podfolderu wszystkie numerki
+	std::multimap<std::string, std::string> chatsound_paths;
+
+	std::string path("C:/Users/bonzo/Desktop/csgo-chatsounds/chatsounds/sounds/chatsounds");
 	std::string ext(".ogg");
 
 	std::string temp;
 
+	std::string currently_scanned_dir;
+	std::string current_parent_dir;
+	std::string current_parent_dir_path;
+
+	std::string omit;
+
 	for (auto& p : fs::recursive_directory_iterator(path))
 	{
-		if (p.path().extension() == ext)
-			temp = p.path().stem().string();
-		nameAndSize_ref.push_back(std::make_pair(temp.size(), temp));
+
+		current_parent_dir_path = p.path().parent_path().string();
+		current_parent_dir = p.path().parent_path().stem().string();
+
+		if (omit == p.path().parent_path().string()) 
+			continue;
+
+		if (current_parent_dir == "chatsounds")
+		{
+			currently_scanned_dir = p.path().stem().string();
+		}
+
+		// if current path isn't folder and current_parent_dir isn't "chatsounds" THEN add
+		if (p.is_directory() != true && current_parent_dir != "chatsounds" && current_parent_dir == currently_scanned_dir && p.path().extension() == ext)
+		{
+			temp = p.path().stem().string(); // ogg file in this case
+			chatsound_paths.insert(std::make_pair(temp, p.path().string()));
+			nameAndSize_ref.push_back(std::make_pair(temp.size(), temp));
+		}
+
+
+		// if child is a folder THEN scan folder and add all
+		else if (p.is_directory() != true && current_parent_dir != "chatsounds" && current_parent_dir != currently_scanned_dir)
+		{
+			omit = p.path().parent_path().string();
+			std::string temp = current_parent_dir;
+			for (auto& subp : fs::recursive_directory_iterator(current_parent_dir_path))
+			{
+				chatsound_paths.insert(std::make_pair(current_parent_dir, subp.path().string()));
+			}
+			nameAndSize_ref.push_back(std::make_pair(temp.size(), temp));
+		}
 	}
-
 	std::sort(nameAndSize_ref.begin(), nameAndSize_ref.end(), std::greater<std::pair<size_t, std::string>>());
+	return chatsound_paths;
 }
-
-void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, std::string>>& nameAndSize_ref, SDL2ChatSounds& sdl2_chatsounds_ref)
+																																// TODO: przerob te funkcje tak, ¿eby cos zwracaly i by je
+																																// mozna bylo uzyc w mainie a nie robiæ million callbacków
+																																// z jednej funkcji do drugiej, bo sie robi potezny syf
+																																// glupie nawyki z pythona
+void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, std::string>>& nameAndSize_ref, SDL2ChatSounds& sdl2_chatsounds_ref, std::multimap<std::string, std::string>& chatsound_paths_ref)
 {
 	std::string toAnalyzeLater = content_copy;
 
@@ -58,9 +102,6 @@ void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, st
 
 	while (content_copy != "")
 	{
-		//unsigned short int hits; // duplicate chatsounds on list
-
-
 		for (auto& chtsnd : nameAndSize_ref)
 		{
 			std::string chatsound = chtsnd.second;
@@ -70,16 +111,11 @@ void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, st
 			if (content_copy == "")
 				break;
 
-			if (std::regex_search(content_copy, match, rgx) == true)
+			if (std::regex_search(content_copy, match, rgx) == true && match.str(0) != "")
 			{
- 				//std::cout << "Match: " << match.str(0) << std::endl;
-				 
-				if (match.str(0) != "") //&& std::find(toPlay.begin(), toPlay.end(), match.str(0)) == toPlay.end()) // preventing duplication
-				{
-					toPlay.push_back(match.str(0));
-					content_copy = std::regex_replace(content_copy, rgx, "", std::regex_constants::format_first_only);
-					content_copy = trim(content_copy);
-				}
+				toPlay.push_back(match.str(0));
+				content_copy = std::regex_replace(content_copy, rgx, "", std::regex_constants::format_first_only);
+				content_copy = trim(content_copy);
 			}
 		}
 		break;
@@ -96,19 +132,17 @@ void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, st
 				std::regex rgx("\\b(^" + x + ")\\b");
 				std::smatch match;
 
-				if (std::regex_search(toAnalyzeLater, match, rgx))
+				if (std::regex_search(toAnalyzeLater, match, rgx) && match.str(0) != "")
 				{
-					if (match.str(0) != "")
-					{
-						toAnalyzeLater = std::regex_replace(toAnalyzeLater, rgx, "");
-						toAnalyzeLater = trim(toAnalyzeLater);
-						toPlay_sorted.push_back(x);
-					}
+					toAnalyzeLater = std::regex_replace(toAnalyzeLater, rgx, "");
+					toAnalyzeLater = trim(toAnalyzeLater);
+					toPlay_sorted.push_back(x);
 				}
 			}
 		}
 
-		// top 10 most stupid fixes
+		// top 10 stupid fixes
+		// or is it?
 		for (char character : toAnalyzeLater)
 		{
 			if (toAnalyzeLater[0] == ' ')
@@ -120,9 +154,9 @@ void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, st
 		}
 	}
 
-	for (auto& chatsound_query : toPlay_sorted)
+	for (std::string& chatsound_query : toPlay_sorted)
 	{
-		sdl2_chatsounds_ref.addChatSound(chatsound_query);
+		sdl2_chatsounds_ref.addChatSound(chatsound_query, chatsound_paths_ref);
 	}
 
 	sdl2_chatsounds_ref.playChatSounds(toPlay_sorted);
@@ -133,26 +167,24 @@ int main ()
 	SDL2ChatSounds sdl2_chatsounds;
 
 	std::vector<std::pair<size_t, std::string>> nameAndSize;
-	vectorSortDescending(nameAndSize);
+	std::multimap<std::string, std::string> chatsound_paths = loadAndSortDescending(nameAndSize);
 
 	// Windows api stuff
 	DWORD procId = GetProcId(L"csgo.exe");
-	uintptr_t moduleBase = GetModuleBaseAddress(procId, L"shaderapidx9.dll");
+	uintptr_t moduleBase = GetModuleBaseAddress(procId, L"panorama.dll");
 	//uintptr_t moduleBase2 = GetModuleBaseAddress(procId, L"client.dll");
 	HANDLE hProcess = 0;
 
 	hProcess = OpenProcess(PROCESS_VM_READ, NULL, procId);
 
-	uintptr_t dynamicPtrBaseAddr = moduleBase + 0x0008983C;
+	uintptr_t dynamicPtrBaseAddr = moduleBase + 0x0023B0AC;
 	//std::cout << "DPB: " << "0x" << std::hex << dynamicPtrBaseAddr << std::endl;
 
-	std::vector<unsigned int> chatOffsets = { 0x10, 0xB4, 0x204, 0x2A8, 0x114, 0x0 };
+	std::vector<unsigned int> chatOffsets = { 0x14C, 0x74, 0xA4, 0x204, 0x2A8, 0x100, 0x0 };
 	uintptr_t chatAddr = FindDMAAddy(hProcess, dynamicPtrBaseAddr, chatOffsets);
 
 	//std::cout << "CA: " << "0x" << std::hex << chatAddr << std::endl;
-	
 
-	// Actual code that i am finally making
 	std::regex normalChatMessagePattern("<[^>]*>");
 	std::regex MessageContentPattern("^[^:]+:\s*");
 
@@ -162,7 +194,7 @@ int main ()
 	while (true)
 	{
 		ReadProcessMemory(hProcess, (BYTE*)chatAddr, &message, sizeof(message), nullptr);
-		std::string msg = (std::string)message;												// IT IS KURWA '\0' TERMINATED VISUAL STUDIO SKLEJ DUPE
+		std::string msg = (std::string)message;
 		
 		if (msg != prevMessage)
 		{
@@ -180,12 +212,12 @@ int main ()
 				prevMessage = msg;
 
 				Mix_HaltChannel(-1);
-				Mix_Resume(-1);
-				Sleep(750);
+				//Mix_Resume(-1);
+				Sleep(100);
 				continue;
 			}
 
-			parseChatsounds(content, nameAndSize, sdl2_chatsounds);
+			parseChatsounds(content, nameAndSize, sdl2_chatsounds, chatsound_paths);
 		}
 
 		prevMessage = msg;

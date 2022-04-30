@@ -1,10 +1,10 @@
-#include "SDL2ChatSounds.h"
-#include <SDL.h>
-#include <filesystem>
 #include <windows.h>
+#include <filesystem>
 #include <random>
+#include <SDL.h>
+#include "SDL2ChatSounds.h"
+#include "ChatsoundEffects.h"
 
-#include <thread>
 
 SDL2ChatSounds::SDL2ChatSounds()
 {
@@ -24,8 +24,9 @@ SDL2ChatSounds::SDL2ChatSounds()
 	}
 	else {
 		//std::cout << SDL_GetAudioDeviceName(0, 1) << std::endl;
-		Mix_OpenAudioDevice(audio_rate, audio_format, audio_channels, audio_buffers, "CABLE Input (VB-Audio Virtual Cable)", SDL_AUDIO_ALLOW_ANY_CHANGE);
+		Mix_OpenAudioDevice(audio_rate, audio_format, audio_channels, audio_buffers, "CABLE Input (VB-Audio Virtual Cable)", SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
 		//Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers);
+		Mix_Volume(-1, 5);
 	}
 }
 SDL2ChatSounds::~SDL2ChatSounds()
@@ -34,18 +35,17 @@ SDL2ChatSounds::~SDL2ChatSounds()
 	SDL_Quit();
 }
 
-void SDL2ChatSounds::addChatSound(std::string name)//, std::string path)
+void SDL2ChatSounds::addChatSound(std::string name, std::multimap<std::string, std::string>& chatsound_paths)
 {
 	if (mChatSoundBank.find(name) == mChatSoundBank.end())
 	{
 		std::string path;
-		std::string search_path("C:/Users/bonzo/Desktop/csgo-chatsounds/chatsounds-polskisandbox/sounds/chatsounds");
-
-		for (auto& p : std::filesystem::recursive_directory_iterator(search_path))
+		
+		for (auto& keyval : chatsound_paths)
 		{
-			if (p.path().filename() == name + ".ogg")
+			if (keyval.first == name)
 			{
-				path = p.path().string();
+				path = keyval.second;
 				mChatSoundBank.insert(std::make_pair(name, Mix_LoadWAV(path.c_str())));
 			}
 		}
@@ -54,8 +54,7 @@ void SDL2ChatSounds::addChatSound(std::string name)//, std::string path)
 
 void SDL2ChatSounds::playChatSounds(std::vector<std::string> chatsounds) const
 {
-	Mix_Volume(-1, 30);
-	unsigned short int amount_playing;
+	unsigned short int amount_playing = 0;
 
 	for (int i = 0; i < 8; i++)
 	{
@@ -68,6 +67,8 @@ void SDL2ChatSounds::playChatSounds(std::vector<std::string> chatsounds) const
 
 	for (auto& name : chatsounds)
 	{
+		// adding chatsound duplicates to a new container with name, and MixChunk*
+		// to randomly choose one of them later.
 		std::vector<std::pair<std::string, Mix_Chunk*>> duplicates;
 		for (auto& keyval : mChatSoundBank)
 		{
@@ -86,10 +87,11 @@ void SDL2ChatSounds::playChatSounds(std::vector<std::string> chatsounds) const
 
 		Mix_Chunk* tmp = duplicates[random_integer].second;
 
-		while (Mix_Playing(amount_playing) != 0) // sam jestes uninitialized VS dzbanie
+		while (Mix_Playing(amount_playing) != 0)
 		{
 			SDL_Delay(300);
 		}
+		//Mix_RegisterEffect(amount_playing, vibrato_callback, nullptr, nullptr);
 		Mix_PlayChannel(amount_playing, tmp, 0);
 		std::cout << "Sound played: " << duplicates[random_integer].first << std::endl;
 	}

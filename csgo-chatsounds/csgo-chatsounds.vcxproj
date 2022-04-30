@@ -97,6 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>E:\repos\csgo-chatsounds\csgo-chatsounds\external</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -113,6 +114,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>E:\repos\csgo-chatsounds\csgo-chatsounds\external</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,12 +162,20 @@
     <Text Include="LICENSE">
       <FileType>Document</FileType>
     </Text>
+    <ClCompile Include="external\BerVibrato\BerVibrato.cpp" />
+    <ClCompile Include="external\BerVibrato\Lfo.cpp" />
+    <ClCompile Include="external\BerVibrato\Ringbuffer.cpp" />
+    <ClCompile Include="src\ChatsoundEffects.cpp" />
     <ClCompile Include="src\proc.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SDL2ChatSounds.cpp" />
     <ClCompile Include="src\jeszcze-nie-main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="external\BerVibrato\BerVibrato.h" />
+    <ClInclude Include="external\BerVibrato\Lfo.h" />
+    <ClInclude Include="external\BerVibrato\Ringbuffer.h" />
+    <ClInclude Include="src\ChatsoundEffects.h" />
     <ClInclude Include="src\proc.h" />
     <ClInclude Include="src\SDL2ChatSounds.h" />
   </ItemGroup>

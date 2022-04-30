@@ -27,12 +27,36 @@
     <ClCompile Include="src\proc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ChatsoundEffects.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\BerVibrato\BerVibrato.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\BerVibrato\Lfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="external\BerVibrato\Ringbuffer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\SDL2ChatSounds.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\proc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ChatsoundEffects.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\BerVibrato\BerVibrato.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\BerVibrato\Lfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="external\BerVibrato\Ringbuffer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
