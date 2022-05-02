@@ -4,37 +4,41 @@
 #include <filesystem>
 #include <windows.h>
 
-#include "SDL2ChatSounds.h"
+#include "ChatSounds.h"
 #include "proc.h"
+#include "utils.h"
 
 namespace fs = std::filesystem;
 
-// https://www.techiedelight.com/trim-string-cpp-remove-leading-trailing-spaces/
-std::string trim(const std::string& s)
+/*Returns chat memory address and a handle to the process*/
+std::pair<HANDLE, uintptr_t> getChatAddr() 
 {
-	if (s != "") {
-		auto start = s.begin();
-		while (start != s.end() && std::isspace(*start)) {
-			start++;
-		}
+	std::pair<HANDLE, uintptr_t> hProcess_and_ChatAddr;
 
-		auto end = s.end();
-		do {
-				end--;
-		} while (std::distance(start, end) > 0 && std::isspace(*end));
+	DWORD procId = GetProcId(L"csgo.exe");
+	uintptr_t moduleBase = GetModuleBaseAddress(procId, L"panorama.dll");
+	//uintptr_t moduleBase2 = GetModuleBaseAddress(procId, L"client.dll");
+	HANDLE hProcess = 0;
 
-		return std::string(start, end + 1);
-	}
+	hProcess = OpenProcess(PROCESS_VM_READ, NULL, procId);
 
-	else {
-		return "";
-	}
+	uintptr_t dynamicPtrBaseAddr = moduleBase + 0x0023B0AC;
+	//std::cout << "DPB: " << "0x" << std::hex << dynamicPtrBaseAddr << std::endl;
+
+	std::vector<unsigned int> chatOffsets = { 0x14C, 0x74, 0xA4, 0x204, 0x2A8, 0x100, 0x0 };
+	uintptr_t chatAddr = FindDMAAddy(hProcess, dynamicPtrBaseAddr, chatOffsets);
+	//std::cout << "CA: " << "0x" << std::hex << chatAddr << std::endl;
+
+	hProcess_and_ChatAddr = std::make_pair(hProcess, chatAddr);
+
+	return hProcess_and_ChatAddr;
 }
 
-/*Gets the nameAndSize vector with chatsounds name lenghts and names itself and fills it.
-  Returns vector with names and paths that will be used in later code to not
-  search for the same chatsounds over again*/
-std::multimap<std::string, std::string> loadAndSortDescending (std::vector<std::pair<size_t, std::string>>& nameAndSize_ref)
+/*Takes: 
+	- vector<name length, name> of each chatsound. 
+Loads all chatsounds to it and sorts them.
+Returns chatsound_paths multimap<name, path> for future use in ChatSounds object's method*/
+std::multimap<std::string, std::string> loadAndSort (std::vector<std::pair<size_t, std::string>>& name_and_size_ref)
 {
 	// chatsoundy sa zapisywane z nazw¹ samego numerka np. 1.ogg w przypadku gdy to jest podfolder z roznymi
 	// wersjami tego samego chatsounda, trzeba podmienic na ta sama nazwe podfolderu wszystkie numerki
@@ -70,9 +74,8 @@ std::multimap<std::string, std::string> loadAndSortDescending (std::vector<std::
 		{
 			temp = p.path().stem().string(); // ogg file in this case
 			chatsound_paths.insert(std::make_pair(temp, p.path().string()));
-			nameAndSize_ref.push_back(std::make_pair(temp.size(), temp));
+			name_and_size_ref.push_back(std::make_pair(temp.size(), temp));
 		}
-
 
 		// if child is a folder THEN scan folder and add all
 		else if (p.is_directory() != true && current_parent_dir != "chatsounds" && current_parent_dir != currently_scanned_dir)
@@ -83,26 +86,32 @@ std::multimap<std::string, std::string> loadAndSortDescending (std::vector<std::
 			{
 				chatsound_paths.insert(std::make_pair(current_parent_dir, subp.path().string()));
 			}
-			nameAndSize_ref.push_back(std::make_pair(temp.size(), temp));
+			name_and_size_ref.push_back(std::make_pair(temp.size(), temp));
 		}
 	}
-	std::sort(nameAndSize_ref.begin(), nameAndSize_ref.end(), std::greater<std::pair<size_t, std::string>>());
+	std::sort(name_and_size_ref.begin(), name_and_size_ref.end(), std::greater<std::pair<size_t, std::string>>());
 	return chatsound_paths;
 }
-																																// TODO: przerob te funkcje tak, ¿eby cos zwracaly i by je
-																																// mozna bylo uzyc w mainie a nie robiæ million callbacków
-																																// z jednej funkcji do drugiej, bo sie robi potezny syf
-																																// glupie nawyki z pythona
-void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, std::string>>& nameAndSize_ref, SDL2ChatSounds& sdl2_chatsounds_ref, std::multimap<std::string, std::string>& chatsound_paths_ref)
+
+/*Takes: 
+	- input message, 
+	- vector of chatsound names and its lengths,
+	- ChatSounds object to run everything after processing input,
+	- vector with chatsound names and paths to pass it to method of ChatSounds object*/
+void parseChatsounds (std::string content_copy,
+					  std::vector<std::pair<size_t, std::string>>& name_and_size_ref,
+					  ChatSounds& chatsounds_ref,
+					  std::multimap<std::string, std::string>& chatsound_paths_ref)
 {
 	std::string toAnalyzeLater = content_copy;
 
 	std::vector<std::string> toPlay;
 	std::vector<std::string> toPlay_sorted;
 
+	// catch existing chatsounds from input message
 	while (content_copy != "")
 	{
-		for (auto& chtsnd : nameAndSize_ref)
+		for (auto& chtsnd : name_and_size_ref)
 		{
 			std::string chatsound = chtsnd.second;
 			std::regex rgx("\\b(" + chatsound + ")\\b");
@@ -115,14 +124,16 @@ void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, st
 			{
 				toPlay.push_back(match.str(0));
 				content_copy = std::regex_replace(content_copy, rgx, "", std::regex_constants::format_first_only);
-				content_copy = trim(content_copy);
+				content_copy = Utils::trim(content_copy);
 			}
 		}
 		break;
 	}
 
 
-	// ustalanie kolejnoœci chatsoundów, tak jak na czacie
+	// BRAND NEW BUG: jakims cudem mozna powtorzyc chatsounda tylko 4 razy w jednym inpucie,
+	// wiecej sie nie da
+	// sorts catched chatsounds to play them in the order made by input message
 	while (toAnalyzeLater != "")
 	{
 		for (unsigned short int i = 0; i < toPlay.size() + 1; i++)
@@ -135,7 +146,7 @@ void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, st
 				if (std::regex_search(toAnalyzeLater, match, rgx) && match.str(0) != "")
 				{
 					toAnalyzeLater = std::regex_replace(toAnalyzeLater, rgx, "");
-					toAnalyzeLater = trim(toAnalyzeLater);
+					toAnalyzeLater = Utils::trim(toAnalyzeLater);
 					toPlay_sorted.push_back(x);
 				}
 			}
@@ -156,56 +167,46 @@ void parseChatsounds (std::string content_copy, std::vector<std::pair<size_t, st
 
 	for (std::string& chatsound_query : toPlay_sorted)
 	{
-		sdl2_chatsounds_ref.addChatSound(chatsound_query, chatsound_paths_ref);
+		chatsounds_ref.addChatSound(chatsound_query, chatsound_paths_ref);
 	}
 
-	sdl2_chatsounds_ref.playChatSounds(toPlay_sorted);
+	chatsounds_ref.playChatSounds(toPlay_sorted);
 }
 
 int main ()
 {
-	SDL2ChatSounds sdl2_chatsounds;
+	std::pair<HANDLE, uintptr_t> hProcess_and_ChatAddr = getChatAddr();
 
-	std::vector<std::pair<size_t, std::string>> nameAndSize;
-	std::multimap<std::string, std::string> chatsound_paths = loadAndSortDescending(nameAndSize);
+	ChatSounds chatsounds;
 
-	// Windows api stuff
-	DWORD procId = GetProcId(L"csgo.exe");
-	uintptr_t moduleBase = GetModuleBaseAddress(procId, L"panorama.dll");
-	//uintptr_t moduleBase2 = GetModuleBaseAddress(procId, L"client.dll");
-	HANDLE hProcess = 0;
+	std::vector<std::pair<size_t, std::string>> name_and_size;
+	std::multimap<std::string, std::string> chatsound_paths = loadAndSort(name_and_size);
 
-	hProcess = OpenProcess(PROCESS_VM_READ, NULL, procId);
 
-	uintptr_t dynamicPtrBaseAddr = moduleBase + 0x0023B0AC;
-	//std::cout << "DPB: " << "0x" << std::hex << dynamicPtrBaseAddr << std::endl;
-
-	std::vector<unsigned int> chatOffsets = { 0x14C, 0x74, 0xA4, 0x204, 0x2A8, 0x100, 0x0 };
-	uintptr_t chatAddr = FindDMAAddy(hProcess, dynamicPtrBaseAddr, chatOffsets);
-
-	//std::cout << "CA: " << "0x" << std::hex << chatAddr << std::endl;
-
-	std::regex normalChatMessagePattern("<[^>]*>");
-	std::regex MessageContentPattern("^[^:]+:\s*");
+	std::regex message_pattern("<[^>]*>");
+	std::regex message_content_pattern("^[^:]+:\s*");
 
 	char message[512];
 	std::string prevMessage;
 
 	while (true)
 	{
-		ReadProcessMemory(hProcess, (BYTE*)chatAddr, &message, sizeof(message), nullptr);
+		ReadProcessMemory(hProcess_and_ChatAddr.first,			// handle
+						  (BYTE*)hProcess_and_ChatAddr.second,  // chat memory address
+						  &message, 
+						  sizeof(message), 
+						  nullptr);
+
 		std::string msg = (std::string)message;
 		
 		if (msg != prevMessage)
 		{
-			std::string normalChatMessage = std::regex_replace(msg, normalChatMessagePattern, "");
-			//std::cout << normalChatMessage << std::endl;
+			std::string normal_chat_message = std::regex_replace(msg, message_pattern, "");
 
-
-			std::string content = std::regex_replace(normalChatMessage, MessageContentPattern, "");
+			std::string content = std::regex_replace(normal_chat_message, message_content_pattern, "");
 			content.erase(0, 1);
 
-			std::cout << "\"Raw\" Input: " << content << std::endl;
+			std::cout << "Input: " << content << std::endl;
 
 			if (content == "sh")
 			{
@@ -217,7 +218,7 @@ int main ()
 				continue;
 			}
 
-			parseChatsounds(content, nameAndSize, sdl2_chatsounds, chatsound_paths);
+			parseChatsounds(content, name_and_size, chatsounds, chatsound_paths);
 		}
 
 		prevMessage = msg;

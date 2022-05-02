@@ -2,11 +2,11 @@
 #include <filesystem>
 #include <random>
 #include <SDL.h>
-#include "SDL2ChatSounds.h"
+#include "ChatSounds.h"
 #include "ChatsoundEffects.h"
 
 
-SDL2ChatSounds::SDL2ChatSounds()
+ChatSounds::ChatSounds()
 {
 	SDL_Init(SDL_INIT_AUDIO);
 
@@ -26,16 +26,16 @@ SDL2ChatSounds::SDL2ChatSounds()
 		//std::cout << SDL_GetAudioDeviceName(0, 1) << std::endl;
 		Mix_OpenAudioDevice(audio_rate, audio_format, audio_channels, audio_buffers, "CABLE Input (VB-Audio Virtual Cable)", SDL_AUDIO_ALLOW_SAMPLES_CHANGE);
 		//Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers);
-		Mix_Volume(-1, 5);
+		Mix_Volume(-1, 8);
 	}
 }
-SDL2ChatSounds::~SDL2ChatSounds()
+ChatSounds::~ChatSounds()
 {
 	Mix_Quit();
 	SDL_Quit();
 }
 
-void SDL2ChatSounds::addChatSound(std::string name, std::multimap<std::string, std::string>& chatsound_paths)
+void ChatSounds::addChatSound(std::string name, std::multimap<std::string, std::string>& chatsound_paths)
 {
 	if (mChatSoundBank.find(name) == mChatSoundBank.end())
 	{
@@ -52,7 +52,7 @@ void SDL2ChatSounds::addChatSound(std::string name, std::multimap<std::string, s
 	}
 }
 
-void SDL2ChatSounds::playChatSounds(std::vector<std::string> chatsounds) const
+void ChatSounds::playChatSounds(std::vector<std::string> chatsounds) const
 {
 	unsigned short int amount_playing = 0;
 

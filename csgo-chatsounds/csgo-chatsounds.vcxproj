@@ -159,6 +159,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\utils.cpp" />
     <Text Include="LICENSE">
       <FileType>Document</FileType>
     </Text>
@@ -168,8 +169,7 @@
     <ClCompile Include="src\ChatsoundEffects.cpp" />
     <ClCompile Include="src\proc.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\SDL2ChatSounds.cpp" />
-    <ClCompile Include="src\jeszcze-nie-main.cpp" />
+    <ClCompile Include="src\ChatSounds.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="external\BerVibrato\BerVibrato.h" />
@@ -177,7 +177,8 @@
     <ClInclude Include="external\BerVibrato\Ringbuffer.h" />
     <ClInclude Include="src\ChatsoundEffects.h" />
     <ClInclude Include="src\proc.h" />
-    <ClInclude Include="src\SDL2ChatSounds.h" />
+    <ClInclude Include="src\ChatSounds.h" />
+    <ClInclude Include="src\utils.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

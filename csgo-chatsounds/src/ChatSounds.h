@@ -5,11 +5,11 @@
 #include <vector>
 #include <map>
 
-class SDL2ChatSounds
+class ChatSounds
 {
 public:
-	SDL2ChatSounds();
-	~SDL2ChatSounds();
+	ChatSounds();
+	~ChatSounds();
 
 	void addChatSound(std::string name, std::multimap<std::string, std::string>& chatsound_paths);
 	void playChatSounds(std::vector<std::string> chatsounds) const;
