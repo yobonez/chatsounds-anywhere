@@ -160,6 +160,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\utils.cpp" />
+    <ClCompile Include="src\Tags.cpp" />
     <Text Include="LICENSE">
       <FileType>Document</FileType>
     </Text>
@@ -179,6 +180,7 @@
     <ClInclude Include="src\proc.h" />
     <ClInclude Include="src\ChatSounds.h" />
     <ClInclude Include="src\utils.h" />
+    <ClInclude Include="src\Tags.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

@@ -35,7 +35,7 @@ ChatSounds::~ChatSounds()
 	SDL_Quit();
 }
 
-void ChatSounds::addChatSound(std::string name, std::multimap<std::string, std::string>& chatsound_paths)
+void ChatSounds::addChatSound(std::string name, std::vector<std::pair<std::string, std::string>>& chatsound_paths)
 {
 	if (mChatSoundBank.find(name) == mChatSoundBank.end())
 	{
@@ -52,7 +52,7 @@ void ChatSounds::addChatSound(std::string name, std::multimap<std::string, std::
 	}
 }
 
-void ChatSounds::playChatSounds(std::vector<std::string> chatsounds) const
+void ChatSounds::playChatSounds(std::vector<std::pair<std::string, short int>> chatsounds) const
 {
 	unsigned short int amount_playing = 0;
 
@@ -65,25 +65,38 @@ void ChatSounds::playChatSounds(std::vector<std::string> chatsounds) const
 		}
 	}
 
-	for (auto& name : chatsounds)
+	for (auto& chatsound : chatsounds)
 	{
+		std::string chatsound_name = chatsound.first;
+		short int chatsound_id_tag = chatsound.second;
+
+		int random_integer = chatsound_id_tag;
+
 		// adding chatsound duplicates to a new container with name, and MixChunk*
 		// to randomly choose one of them later.
 		std::vector<std::pair<std::string, Mix_Chunk*>> duplicates;
+
 		for (auto& keyval : mChatSoundBank)
 		{
-			if (keyval.first == name)
+			if (keyval.first == chatsound_name)
 			{
-				duplicates.push_back(std::make_pair(name, keyval.second));
+				duplicates.push_back(std::make_pair(chatsound_name, keyval.second));
 			}
 		}
 
-		//https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
-		std::random_device rd;
-		std::mt19937 rng(rd());
-		std::uniform_int_distribution<int> uni(0, duplicates.size() - 1);
+		if (chatsound_id_tag < 0)
+		{
+			//https://stackoverflow.com/questions/5008804/generating-random-integer-from-a-range
+			std::random_device rd;
+			std::mt19937 rng(rd());
+			std::uniform_int_distribution<int> uni(0, duplicates.size() - 1);
 
-		auto random_integer = uni(rng);
+			random_integer = uni(rng);
+
+			Mix_Chunk* tmp = duplicates[random_integer].second;
+		}
+		
+		if (random_integer >= duplicates.size()) return;
 
 		Mix_Chunk* tmp = duplicates[random_integer].second;
 

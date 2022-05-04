@@ -11,8 +11,8 @@ public:
 	ChatSounds();
 	~ChatSounds();
 
-	void addChatSound(std::string name, std::multimap<std::string, std::string>& chatsound_paths);
-	void playChatSounds(std::vector<std::string> chatsounds) const;
+	void addChatSound(std::string name, std::vector<std::pair<std::string, std::string>>& chatsound_paths);
+	void playChatSounds(std::vector<std::pair<std::string, short int>> chatsounds) const;
 
 private:
 	std::multimap<std::string, Mix_Chunk*> mChatSoundBank; // name, MixChunk*

@@ -7,6 +7,7 @@
 #include "ChatSounds.h"
 #include "proc.h"
 #include "utils.h"
+#include "Tags.h"
 
 namespace fs = std::filesystem;
 
@@ -17,7 +18,6 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 
 	DWORD procId = GetProcId(L"csgo.exe");
 	uintptr_t moduleBase = GetModuleBaseAddress(procId, L"panorama.dll");
-	//uintptr_t moduleBase2 = GetModuleBaseAddress(procId, L"client.dll");
 	HANDLE hProcess = 0;
 
 	hProcess = OpenProcess(PROCESS_VM_READ, NULL, procId);
@@ -38,13 +38,13 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 	- vector<name length, name> of each chatsound. 
 Loads all chatsounds to it and sorts them.
 Returns chatsound_paths multimap<name, path> for future use in ChatSounds object's method*/
-std::multimap<std::string, std::string> loadAndSort (std::vector<std::pair<size_t, std::string>>& name_and_size_ref)
+std::vector<std::pair<std::string, std::string>> loadAndSort (std::vector<std::pair<size_t, std::string>>& size_and_name_ref)
 {
-	// chatsoundy sa zapisywane z nazw¹ samego numerka np. 1.ogg w przypadku gdy to jest podfolder z roznymi
-	// wersjami tego samego chatsounda, trzeba podmienic na ta sama nazwe podfolderu wszystkie numerki
-	std::multimap<std::string, std::string> chatsound_paths;
+	std::vector<std::pair<std::string, std::string>> chatsound_paths;
 
 	std::string path("C:/Users/bonzo/Desktop/csgo-chatsounds/chatsounds/sounds/chatsounds");
+	//std::string path("Z:/garrysmod-chatsounds/sound/chatsounds/autoadd");
+	//std::string path("C:/Users/bonzo/Desktop/garrysmod-chatsounds/sound/chatsounds/autoadd");
 	std::string ext(".ogg");
 
 	std::string temp;
@@ -73,8 +73,8 @@ std::multimap<std::string, std::string> loadAndSort (std::vector<std::pair<size_
 		if (p.is_directory() != true && current_parent_dir != "chatsounds" && current_parent_dir == currently_scanned_dir && p.path().extension() == ext)
 		{
 			temp = p.path().stem().string(); // ogg file in this case
-			chatsound_paths.insert(std::make_pair(temp, p.path().string()));
-			name_and_size_ref.push_back(std::make_pair(temp.size(), temp));
+			chatsound_paths.push_back(std::make_pair(temp, p.path().string()));
+			size_and_name_ref.push_back(std::make_pair(temp.size(), temp));
 		}
 
 		// if child is a folder THEN scan folder and add all
@@ -84,12 +84,12 @@ std::multimap<std::string, std::string> loadAndSort (std::vector<std::pair<size_
 			std::string temp = current_parent_dir;
 			for (auto& subp : fs::recursive_directory_iterator(current_parent_dir_path))
 			{
-				chatsound_paths.insert(std::make_pair(current_parent_dir, subp.path().string()));
+				chatsound_paths.push_back(std::make_pair(current_parent_dir, subp.path().string()));
 			}
-			name_and_size_ref.push_back(std::make_pair(temp.size(), temp));
+			size_and_name_ref.push_back(std::make_pair(temp.size(), temp));
 		}
 	}
-	std::sort(name_and_size_ref.begin(), name_and_size_ref.end(), std::greater<std::pair<size_t, std::string>>());
+	std::sort(size_and_name_ref.begin(), size_and_name_ref.end(), std::greater<std::pair<size_t, std::string>>());
 	return chatsound_paths;
 }
 
@@ -99,19 +99,20 @@ std::multimap<std::string, std::string> loadAndSort (std::vector<std::pair<size_
 	- ChatSounds object to run everything after processing input,
 	- vector with chatsound names and paths to pass it to method of ChatSounds object*/
 void parseChatsounds (std::string content_copy,
-					  std::vector<std::pair<size_t, std::string>>& name_and_size_ref,
-					  ChatSounds& chatsounds_ref,
-					  std::multimap<std::string, std::string>& chatsound_paths_ref)
+	// TODO: zrob loadera normalnego z zewnetrznego pliku a nie
+	std::vector<std::pair<size_t, std::string>>& size_and_name_ref,
+	ChatSounds& chatsounds_ref,
+	std::vector<std::pair<std::string, std::string>>& chatsound_paths_ref)
 {
 	std::string toAnalyzeLater = content_copy;
 
 	std::vector<std::string> toPlay;
-	std::vector<std::string> toPlay_sorted;
+	std::vector<std::pair<std::string, short int>> toPlay_sorted;
 
 	// catch existing chatsounds from input message
 	while (content_copy != "")
 	{
-		for (auto& chtsnd : name_and_size_ref)
+		for (auto& chtsnd : size_and_name_ref)
 		{
 			std::string chatsound = chtsnd.second;
 			std::regex rgx("\\b(" + chatsound + ")\\b");
@@ -131,6 +132,7 @@ void parseChatsounds (std::string content_copy,
 	}
 
 
+	short int id;
 	// BRAND NEW BUG: jakims cudem mozna powtorzyc chatsounda tylko 4 razy w jednym inpucie,
 	// wiecej sie nie da
 	// sorts catched chatsounds to play them in the order made by input message
@@ -145,9 +147,15 @@ void parseChatsounds (std::string content_copy,
 
 				if (std::regex_search(toAnalyzeLater, match, rgx) && match.str(0) != "")
 				{
+					Tags tags;
+					id = tags.search_id(toAnalyzeLater, x);
+
 					toAnalyzeLater = std::regex_replace(toAnalyzeLater, rgx, "");
+
 					toAnalyzeLater = Utils::trim(toAnalyzeLater);
-					toPlay_sorted.push_back(x);
+					toPlay_sorted.emplace_back(std::make_pair(x, id));
+
+					//std::cout << "Current chatsound: " << x << " | id: " << id << std::endl;
 				}
 			}
 		}
@@ -165,12 +173,12 @@ void parseChatsounds (std::string content_copy,
 		}
 	}
 
-	for (std::string& chatsound_query : toPlay_sorted)
+	for (auto& chatsound : toPlay_sorted)
 	{
-		chatsounds_ref.addChatSound(chatsound_query, chatsound_paths_ref);
+		chatsounds_ref.addChatSound(chatsound.first, chatsound_paths_ref);
 	}
 
-	chatsounds_ref.playChatSounds(toPlay_sorted);
+	chatsounds_ref.playChatSounds(toPlay_sorted); //zamien multimap na cos innego, multimap jest nieposortowany
 }
 
 int main ()
@@ -179,8 +187,10 @@ int main ()
 
 	ChatSounds chatsounds;
 
-	std::vector<std::pair<size_t, std::string>> name_and_size;
-	std::multimap<std::string, std::string> chatsound_paths = loadAndSort(name_and_size);
+	std::vector<std::pair<size_t, std::string>> size_and_name;
+
+	// json jakis walnij zeby za kazdym razem nie musial skanowac plikow
+	std::vector<std::pair<std::string, std::string>> chatsound_paths = loadAndSort(size_and_name);
 
 
 	std::regex message_pattern("<[^>]*>");
@@ -218,7 +228,7 @@ int main ()
 				continue;
 			}
 
-			parseChatsounds(content, name_and_size, chatsounds, chatsound_paths);
+			parseChatsounds(content, size_and_name, chatsounds, chatsound_paths);
 		}
 
 		prevMessage = msg;
