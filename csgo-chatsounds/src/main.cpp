@@ -4,10 +4,12 @@
 #include <filesystem>
 #include <windows.h>
 
-#include "ChatSounds.h"
+#include "ChatSoundPlayer.h"
 #include "proc.h"
+#include "ChatsoundLoader.h"
 #include "utils.h"
 #include "Tags.h"
+#include "ChatsoundType.h"
 
 namespace fs = std::filesystem;
 
@@ -34,163 +36,78 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 	return hProcess_and_ChatAddr;
 }
 
-/*Takes: 
-	- vector<name length, name> of each chatsound. 
-Loads all chatsounds to it and sorts them.
-Returns chatsound_paths multimap<name, path> for future use in ChatSounds object's method*/
-std::vector<std::pair<std::string, std::string>> loadAndSort (std::vector<std::pair<size_t, std::string>>& size_and_name_ref)
-{
-	std::vector<std::pair<std::string, std::string>> chatsound_paths;
-
-	std::string path("C:/Users/bonzo/Desktop/csgo-chatsounds/chatsounds/sounds/chatsounds");
-	//std::string path("Z:/garrysmod-chatsounds/sound/chatsounds/autoadd");
-	//std::string path("C:/Users/bonzo/Desktop/garrysmod-chatsounds/sound/chatsounds/autoadd");
-	std::string ext(".ogg");
-
-	std::string temp;
-
-	std::string currently_scanned_dir;
-	std::string current_parent_dir;
-	std::string current_parent_dir_path;
-
-	std::string omit;
-
-	for (auto& p : fs::recursive_directory_iterator(path))
-	{
-
-		current_parent_dir_path = p.path().parent_path().string();
-		current_parent_dir = p.path().parent_path().stem().string();
-
-		if (omit == p.path().parent_path().string()) 
-			continue;
-
-		if (current_parent_dir == "chatsounds")
-		{
-			currently_scanned_dir = p.path().stem().string();
-		}
-
-		// if current path isn't folder and current_parent_dir isn't "chatsounds" THEN add
-		if (p.is_directory() != true && current_parent_dir != "chatsounds" && current_parent_dir == currently_scanned_dir && p.path().extension() == ext)
-		{
-			temp = p.path().stem().string(); // ogg file in this case
-			chatsound_paths.push_back(std::make_pair(temp, p.path().string()));
-			size_and_name_ref.push_back(std::make_pair(temp.size(), temp));
-		}
-
-		// if child is a folder THEN scan folder and add all
-		else if (p.is_directory() != true && current_parent_dir != "chatsounds" && current_parent_dir != currently_scanned_dir)
-		{
-			omit = p.path().parent_path().string();
-			std::string temp = current_parent_dir;
-			for (auto& subp : fs::recursive_directory_iterator(current_parent_dir_path))
-			{
-				chatsound_paths.push_back(std::make_pair(current_parent_dir, subp.path().string()));
-			}
-			size_and_name_ref.push_back(std::make_pair(temp.size(), temp));
-		}
-	}
-	std::sort(size_and_name_ref.begin(), size_and_name_ref.end(), std::greater<std::pair<size_t, std::string>>());
-	return chatsound_paths;
-}
 
 /*Takes: 
 	- input message, 
-	- vector of chatsound names and its lengths,
-	- ChatSounds object to run everything after processing input,
-	- vector with chatsound names and paths to pass it to method of ChatSounds object*/
-void parseChatsounds (std::string content_copy,
-	// TODO: zrob loadera normalnego z zewnetrznego pliku a nie
-	std::vector<std::pair<size_t, std::string>>& size_and_name_ref,
-	ChatSounds& chatsounds_ref,
-	std::vector<std::pair<std::string, std::string>>& chatsound_paths_ref)
+	- vector of chatsounds,
+	- ChatSoundPlayer object to run everything after processing input,
+*/
+void parseChatsounds (std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, ChatSoundPlayer& chatsound_player_ref)
 {
-	std::string toAnalyzeLater = content_copy;
+	std::vector<std::pair<std::string, short int>> toPlay;
 
-	std::vector<std::string> toPlay;
-	std::vector<std::pair<std::string, short int>> toPlay_sorted;
-
-	// catch existing chatsounds from input message
-	while (content_copy != "")
-	{
-		for (auto& chtsnd : size_and_name_ref)
-		{
-			std::string chatsound = chtsnd.second;
-			std::regex rgx("\\b(" + chatsound + ")\\b");
-			std::smatch match;
-
-			if (content_copy == "")
-				break;
-
-			if (std::regex_search(content_copy, match, rgx) == true && match.str(0) != "")
-			{
-				toPlay.push_back(match.str(0));
-				content_copy = std::regex_replace(content_copy, rgx, "", std::regex_constants::format_first_only);
-				content_copy = Utils::trim(content_copy);
-			}
-		}
-		break;
-	}
-
+	Tags tags;
 
 	short int id;
-	// BRAND NEW BUG: jakims cudem mozna powtorzyc chatsounda tylko 4 razy w jednym inpucie,
-	// wiecej sie nie da
-	// sorts catched chatsounds to play them in the order made by input message
-	while (toAnalyzeLater != "")
+	while (content_copy != "")
 	{
 		for (unsigned short int i = 0; i < toPlay.size() + 1; i++)
 		{
-			for (auto& x : toPlay)
+			for (auto& chtsnd : chatsounds_ref)
 			{
-				std::regex rgx("\\b(^" + x + ")\\b");
+				std::string chatsound = chtsnd.key;
+				std::regex rgx("\\b^(" + chatsound + ")\\b");
 				std::smatch match;
 
-				if (std::regex_search(toAnalyzeLater, match, rgx) && match.str(0) != "")
+				if (content_copy == "")
+					break;
+
+				if (std::regex_search(content_copy, match, rgx) && match.str(0) != "")
 				{
-					Tags tags;
-					id = tags.search_id(toAnalyzeLater, x);
+					id = tags.search_id(content_copy, chatsound);
+					if (id < 0) content_copy = std::regex_replace(content_copy, rgx, "");
 
-					toAnalyzeLater = std::regex_replace(toAnalyzeLater, rgx, "");
 
-					toAnalyzeLater = Utils::trim(toAnalyzeLater);
-					toPlay_sorted.emplace_back(std::make_pair(x, id));
+					content_copy = Utils::trim(content_copy);
+					toPlay.emplace_back(std::make_pair(chatsound, id));
 
-					//std::cout << "Current chatsound: " << x << " | id: " << id << std::endl;
+					tags.remove_tags(content_copy);
+
+					std::cout << "Current chatsound: " << chatsound << " | id: " << id << std::endl;
 				}
 			}
 		}
-
 		// top 10 stupid fixes
 		// or is it?
-		for (char character : toAnalyzeLater)
+		for (char character : content_copy)
 		{
-			if (toAnalyzeLater[0] == ' ')
-				toAnalyzeLater.erase(0, 1);
-			else if (character == ' ')
+			if (content_copy[0] == ' ')
+			{
+				content_copy.erase(0, 1);
 				break;
+			}
 			else
-				toAnalyzeLater.erase(0, 1);
+			{
+				content_copy.erase(0, 1);
+			}
 		}
 	}
 
-	for (auto& chatsound : toPlay_sorted)
+	for (auto& chatsound : toPlay)
 	{
-		chatsounds_ref.addChatSound(chatsound.first, chatsound_paths_ref);
+		chatsound_player_ref.addChatSound(chatsound.first, chatsounds_ref);
 	}
 
-	chatsounds_ref.playChatSounds(toPlay_sorted); //zamien multimap na cos innego, multimap jest nieposortowany
+	chatsound_player_ref.playChatSound(toPlay);
 }
 
 int main ()
 {
 	std::pair<HANDLE, uintptr_t> hProcess_and_ChatAddr = getChatAddr();
 
-	ChatSounds chatsounds;
-
-	std::vector<std::pair<size_t, std::string>> size_and_name;
-
-	// json jakis walnij zeby za kazdym razem nie musial skanowac plikow
-	std::vector<std::pair<std::string, std::string>> chatsound_paths = loadAndSort(size_and_name);
+	ChatSoundPlayer chatsound_player;
+	ChatsoundLoader loader;
+	std::vector<ChatsoundType> chatsounds = loader.Scan();
 
 
 	std::regex message_pattern("<[^>]*>");
@@ -227,8 +144,7 @@ int main ()
 				Sleep(100);
 				continue;
 			}
-
-			parseChatsounds(content, size_and_name, chatsounds, chatsound_paths);
+			parseChatsounds(content, chatsounds, chatsound_player);
 		}
 
 		prevMessage = msg;
