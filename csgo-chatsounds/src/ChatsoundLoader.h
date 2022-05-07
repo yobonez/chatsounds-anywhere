@@ -5,12 +5,15 @@
 #include "nlohmann/single_include/json.hpp"
 #include "ChatsoundType.h"
 
+using json = nlohmann::json;
+
 class ChatsoundLoader
 {
 public:
 	std::vector<ChatsoundType> Scan();
 private:
-	bool CheckExists();
-	//void CorrectlyParseJsonObject(std::string& temp_stem_path, std::string& temp_path, json& json_object);  WIP
+	std::string json_file_name = "./chatsound-paths-default.json";
+	bool CheckPathFileExists();
+	void CorrectlyParseJsonObject(std::string& temp_stem_path, std::string& temp_path, json& json_object);
 };
 

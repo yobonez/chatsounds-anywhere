@@ -74,6 +74,7 @@ void parseChatsounds (std::string content_copy, std::vector<ChatsoundType>& chat
 					tags.remove_tags(content_copy);
 
 					std::cout << "Current chatsound: " << chatsound << " | id: " << id << std::endl;
+					break;
 				}
 			}
 		}
@@ -128,23 +129,33 @@ int main ()
 		
 		if (msg != prevMessage)
 		{
+			std::smatch match;
 			std::string normal_chat_message = std::regex_replace(msg, message_pattern, "");
+			std::string content;
 
-			std::string content = std::regex_replace(normal_chat_message, message_content_pattern, "");
-			content.erase(0, 1);
-
-			std::cout << "Input: " << content << std::endl;
-
-			if (content == "sh")
+			if (std::regex_search(normal_chat_message, match, message_content_pattern))
 			{
-				prevMessage = msg;
+				content = std::regex_replace(normal_chat_message, message_content_pattern, "");
+				content.erase(0, 1);
 
-				Mix_HaltChannel(-1);
-				//Mix_Resume(-1);
+				std::cout << "Input: " << content << std::endl;
+
+				if (content == "sh")
+				{
+					prevMessage = msg;
+
+					Mix_HaltChannel(-1);
+					//Mix_Resume(-1);
+					Sleep(100);
+					continue;
+				}
+				parseChatsounds(content, chatsounds, chatsound_player);
+			}
+			else
+			{
 				Sleep(100);
 				continue;
-			}
-			parseChatsounds(content, chatsounds, chatsound_player);
+			};
 		}
 
 		prevMessage = msg;
