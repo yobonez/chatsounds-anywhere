@@ -4,12 +4,12 @@
 #include <filesystem>
 #include <windows.h>
 
-#include "ChatSoundPlayer.h"
 #include "proc.h"
-#include "ChatsoundLoader.h"
 #include "utils.h"
-#include "Tags.h"
+#include "ChatSoundPlayer.h"
+#include "ChatsoundLoader.h"
 #include "ChatsoundType.h"
+#include "Modifiers.h"
 
 namespace fs = std::filesystem;
 
@@ -24,10 +24,10 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 
 	hProcess = OpenProcess(PROCESS_VM_READ, NULL, procId);
 
-	uintptr_t dynamicPtrBaseAddr = moduleBase + 0x0023B0AC;
+	uintptr_t dynamicPtrBaseAddr = moduleBase + 0x0023B09C;
 	//std::cout << "DPB: " << "0x" << std::hex << dynamicPtrBaseAddr << std::endl;
 
-	std::vector<unsigned int> chatOffsets = { 0x14C, 0x74, 0xA4, 0x204, 0x2A8, 0x100, 0x0 };
+	std::vector<unsigned int> chatOffsets = { 0x14C, 0x74, 0xBC, 0x24, 0x2A8, 0x124, 0x0 };
 	uintptr_t chatAddr = FindDMAAddy(hProcess, dynamicPtrBaseAddr, chatOffsets);
 	//std::cout << "CA: " << "0x" << std::hex << chatAddr << std::endl;
 
@@ -42,11 +42,11 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 	- vector of chatsounds,
 	- ChatSoundPlayer object to run everything after processing input,
 */
-void parseChatsounds (std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, ChatSoundPlayer& chatsound_player_ref)
+void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, ChatSoundPlayer& chatsound_player_ref)
 {
 	std::vector<std::pair<std::string, short int>> toPlay;
 
-	Tags tags;
+	Modifiers modifiers;
 
 	short int id;
 	while (content_copy != "")
@@ -56,6 +56,7 @@ void parseChatsounds (std::string content_copy, std::vector<ChatsoundType>& chat
 			for (auto& chtsnd : chatsounds_ref)
 			{
 				std::string chatsound = chtsnd.key;
+				std::string chatsound_path = chtsnd.value;
 				std::regex rgx("\\b^(" + chatsound + ")\\b");
 				std::smatch match;
 
@@ -64,14 +65,11 @@ void parseChatsounds (std::string content_copy, std::vector<ChatsoundType>& chat
 
 				if (std::regex_search(content_copy, match, rgx) && match.str(0) != "")
 				{
-					id = tags.search_id(content_copy, chatsound);
+					id = modifiers.search_id(content_copy, chatsound);
 					if (id < 0) content_copy = std::regex_replace(content_copy, rgx, "");
-
 
 					content_copy = Utils::trim(content_copy);
 					toPlay.emplace_back(std::make_pair(chatsound, id));
-
-					tags.remove_tags(content_copy);
 
 					std::cout << "Current chatsound: " << chatsound << " | id: " << id << std::endl;
 					break;

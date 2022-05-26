@@ -81,7 +81,7 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 
 		std::ofstream writer;
 		writer.open(json_file_name);
-		writer << json_chatsounds.dump(4, ' ', true, json::error_handler_t::replace);
+		writer << json_chatsounds.dump(4, ' ', true, json::error_handler_t::ignore);
 		writer.close();
 	}
 	else
@@ -106,7 +106,7 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 	}
 
 	// znajdz jakis sposob zeby zmienialo polskie znaki na znaki ascii 
-	// ale bez skanowania kazdego oddzielnego chatsounda, bo to zabija
+	// ale bez skanowania kazdego oddzielnego chatsounda, bo to by rozwalalo
 	// performance pewnie
 
 	std::sort(chatsounds.begin(), chatsounds.end(), sort_by_size);

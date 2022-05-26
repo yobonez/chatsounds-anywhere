@@ -1,15 +1,14 @@
-#include "Tags.h"
+#include "Modifiers.h"
 #include "utils.h"
 
-// '#(num)' Tag
-int Tags::search_id(std::string& input, std::string curr_chatsound)
+int Modifiers::search_id(std::string& input, std::string curr_chatsound)
 {
 	std::string whole_chatsound;
 
 	std::regex rgx("^(" + curr_chatsound + ")#[0-9]+");
 	std::smatch match;
 
-	std::regex rgx_id("[0-9]+");
+	std::regex rgx_id("([0-9]+)$");
 	std::smatch match_id;
 
 	if (std::regex_search(input, match, rgx))
@@ -24,12 +23,11 @@ int Tags::search_id(std::string& input, std::string curr_chatsound)
 		return id;
 	}
 	
+	remove_modifiers(input);
 	return -1;
 }
 
-// probably a temporary solution
-// "temporary solutions sometimes become permanent problems"
-void Tags::remove_tags(std::string& input)
+void Modifiers::remove_modifiers(std::string& input)
 {
 	std::regex rgx("^(#[0-9]+)");
 	input = std::regex_replace(input, rgx, "");

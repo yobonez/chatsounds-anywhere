@@ -73,12 +73,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>E:\dev\SDL2_mixer-2.0.4\lib\x86;E:\dev\SDL2-2.0.20\lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>E:\dev\SDL2-2.0.20\include;E:\dev\SDL2_mixer-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\dev\rubberband\single;E:\dev\rubberband\rubberband;E:\repos\csgo-chatsounds-restore\csgo-chatsounds\external;E:\dev\SDL2-2.0.20\include;E:\dev\SDL2_mixer-2.0.4\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>E:\dev\SDL2_mixer-2.0.4\lib\x86;E:\dev\SDL2-2.0.20\lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>E:\dev\SDL2-2.0.20\include;E:\dev\SDL2_mixer-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\dev\rubberband\single;E:\dev\rubberband\rubberband;E:\repos\csgo-chatsounds-restore\csgo-chatsounds\external;E:\dev\SDL2-2.0.20\include;E:\dev\SDL2_mixer-2.0.4\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -97,7 +97,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>E:\repos\csgo-chatsounds\csgo-chatsounds\external</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\dev\rubberband\single;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/validate-charset %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -115,7 +115,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>E:\repos\csgo-chatsounds\csgo-chatsounds\external</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\dev\rubberband\single;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/validate-charset %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -164,7 +164,7 @@
     <ClCompile Include="src\ChatsoundType.cpp" />
     <ClCompile Include="src\ChatsoundLoader.cpp" />
     <ClCompile Include="src\utils.cpp" />
-    <ClCompile Include="src\Tags.cpp" />
+    <ClCompile Include="src\Modifiers.cpp" />
     <Text Include="LICENSE">
       <FileType>Document</FileType>
     </Text>
@@ -187,7 +187,7 @@
     <ClInclude Include="src\proc.h" />
     <ClInclude Include="src\ChatSoundPlayer.h" />
     <ClInclude Include="src\utils.h" />
-    <ClInclude Include="src\Tags.h" />
+    <ClInclude Include="src\Modifiers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

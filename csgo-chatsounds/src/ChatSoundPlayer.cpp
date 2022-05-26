@@ -6,14 +6,16 @@
 #include "ChatsoundEffects.h"
 #include "ChatsoundType.h"
 
+//TODO: Implement SoLoud
 
 ChatSoundPlayer::ChatSoundPlayer()
 {
+	//SoLoud::Soloud soloud;
 	SDL_Init(SDL_INIT_AUDIO);
 
 	int audio_rate = 44100;
 	Uint16 audio_format = AUDIO_S16SYS;
-	int audio_channels = 8;
+	int audio_channels = 2;
 	int audio_buffers = 4096;
 	
 	int flags = MIX_INIT_OGG;
@@ -105,7 +107,7 @@ void ChatSoundPlayer::playChatSound(std::vector<std::pair<std::string, short int
 		{
 			SDL_Delay(300);
 		}
-		//Mix_RegisterEffect(amount_playing, vibrato_callback, nullptr, nullptr);
+		//Mix_RegisterEffect(amount_playing, trigonometric_sound_callback, nullptr, nullptr);
 		Mix_PlayChannel(amount_playing, tmp, 0);
 		std::cout << "Sound played: " << duplicates[random_integer].first << std::endl;
 	}

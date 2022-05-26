@@ -39,7 +39,7 @@
     <ClCompile Include="src\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Tags.cpp">
+    <ClCompile Include="src\Modifiers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ChatsoundLoader.cpp">
@@ -71,7 +71,7 @@
     <ClInclude Include="src\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Tags.h">
+    <ClInclude Include="src\Modifiers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="external\nlohmann\single_include\json.hpp">

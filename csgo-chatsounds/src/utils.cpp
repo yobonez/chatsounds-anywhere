@@ -1,6 +1,6 @@
 #include "utils.h"
-// https://www.techiedelight.com/trim-string-cpp-remove-leading-trailing-spaces/
 
+// https://www.techiedelight.com/trim-string-cpp-remove-leading-trailing-spaces/
 std::string Utils::trim(const std::string& s)
 {
 	if (s != "") {
