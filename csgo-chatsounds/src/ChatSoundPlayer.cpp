@@ -116,7 +116,7 @@ void ChatSoundPlayer::playChatSound(std::vector<std::pair<std::string, short int
 	{
 		if (Mix_Playing(i))
 		{
-			std::cout << "Channel " << i << ": currently playing" << std::endl;
+			std::cout << "Channel " << i << ": playing" << std::endl;
 		}
 		else
 		{

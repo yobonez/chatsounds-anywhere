@@ -47,8 +47,8 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 	std::vector<std::pair<std::string, short int>> toPlay;
 
 	Modifiers modifiers;
+	std::array<int, 4> params_and_args = { -1, 0, 0, 0 };
 
-	short int id;
 	while (content_copy != "")
 	{
 		for (unsigned short int i = 0; i < toPlay.size() + 1; i++)
@@ -65,19 +65,21 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 
 				if (std::regex_search(content_copy, match, rgx) && match.str(0) != "")
 				{
-					id = modifiers.search_id(content_copy, chatsound);
+					params_and_args = modifiers.search(content_copy, chatsound); // tried to get it by refence, but it got thanos snapped out of reality bcuz optimization on release mode
+					int id = params_and_args[0];
+					int hasEcho = params_and_args[1];
+
 					if (id < 0) content_copy = std::regex_replace(content_copy, rgx, "");
 
 					content_copy = Utils::trim(content_copy);
 					toPlay.emplace_back(std::make_pair(chatsound, id));
 
-					std::cout << "Current chatsound: " << chatsound << " | id: " << id << std::endl;
+					std::cout << "Current chatsound: " << chatsound << " | id: " << id << ", hasEcho: " << hasEcho << std::endl;
 					break;
 				}
 			}
 		}
-		// top 10 stupid fixes
-		// or is it?
+
 		for (char character : content_copy)
 		{
 			if (content_copy[0] == ' ')
