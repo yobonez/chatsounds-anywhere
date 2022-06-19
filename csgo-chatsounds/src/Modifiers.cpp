@@ -10,17 +10,19 @@
    parameters_and_arguments[3] // second echo arg
    parameters_and_arguments[4] ...
 */
-std::array<int, 4> Modifiers::search(std::string& input, std::string curr_chatsound)
+std::array<int, 4> Modifiers::search(std::string& input, std::string& curr_chatsound)
 {
 	std::array<int, 4> parameters_and_arguments = { -1, 0, 0, 0 };
 	std::string all_modifiers;
 
-	std::regex rgx("^(" + curr_chatsound + ")(#[0-9]+|:echo)+"); // curr_chatsound chyba nie jest potrzebny, w main.cpp ju¿ jest okreœlone, jaki chatsound zostanie u¿yty
+	std::regex rgx("^(" + curr_chatsound + ")(#[0-9]+|:echo)+");
 	std::smatch match;
 
+	// Patterns to get modifiers later one by one
 	std::regex rgx_id("([0-9]+)$"); // it doesn't generate any bugs (probably), because the if statement below already checks if the id has "#"
 									// it's just a note for me, cuz i was wondering, why it WORKS
 	std::regex rgx_echo("(:echo)$");
+
 
 	if (std::regex_search(input, match, rgx))
 	{
@@ -31,12 +33,12 @@ std::array<int, 4> Modifiers::search(std::string& input, std::string curr_chatso
 		input = Utils::trim(input);
 	}
 
+	// Regexes for clearing the modifiers - some will differ from these that are for detecting, some will not
+	std::regex clr_rgx_id("(#[0-9]+)$");
+	std::regex clr_rgx_echo = rgx_echo; 
 	while (all_modifiers != "")
 	{
-		std::regex clr_rgx_id("(#[0-9]+)$");
-		std::regex clr_rgx_echo = rgx_echo; 
-
-		parameters_and_arguments[0] = find_id(all_modifiers, match, rgx_id, clr_rgx_id);	 // id
+		parameters_and_arguments[0] = find_id(all_modifiers, match, rgx_id, clr_rgx_id);	   // id
 		parameters_and_arguments[1] = find_echo(all_modifiers, match, rgx_echo, clr_rgx_echo); // 0 - no echo effect, 1 - echo effect with default args, 2 - echo effect with custom args
 	}
 	//parameters_and_arguments[2] =;
@@ -63,6 +65,7 @@ int Modifiers::find_echo(std::string& all_modifiers_ref, std::smatch& match, std
 		clear_modifiers(all_modifiers_ref, clr_rgx);
 		return 1;
 	}
+	// if something return 2;
 	return 0;
 }
 

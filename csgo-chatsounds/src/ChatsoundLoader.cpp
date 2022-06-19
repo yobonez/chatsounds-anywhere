@@ -19,11 +19,7 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 
 	if (CheckPathFileExists() == false)
 	{
-		//fs::path path("C:\\Users\\bonzo\\Desktop\\csgo-chatsounds\\chatsounds\\sounds\\chatsounds");
 		fs::path path("Z:\\chatsounds-polskisandbox-metastruct\\sound\\chatsounds\\autoadd");
-		//fs::path path("C:\\Users\\bonzo\\Desktop\\garrysmod-chatsounds\\sound\\chatsounds\\autoadd");
-
-		//fs::path path("Z:\\garrysmod-chatsounds\\sound\\chatsounds\\autoadd");
 		std::string ext(".ogg");
 
 		std::string temp;
@@ -81,7 +77,8 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 
 		std::ofstream writer;
 		writer.open(json_file_name);
-		writer << json_chatsounds.dump(4, ' ', true, json::error_handler_t::ignore);
+		writer << json_chatsounds.dump(4, ' ', true, json::error_handler_t::ignore); // ignore all chatsounds containing polish or other (choose ur language) specific characters, nlohmann-json can't handle it
+																					 // maybe i will make a fix to this someday
 		writer.close();
 	}
 	else
@@ -97,17 +94,13 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 		{
 			for (auto& subit : it->items())
 			{
-				chatsounds.emplace_back(it.key().size(), it.key(), subit.value());
+				chatsounds.emplace_back(it.key(), subit.value());
 			}
 		}
 		else {
-			chatsounds.emplace_back(it.key().size(), it.key(), it.value());
+			chatsounds.emplace_back(it.key(), it.value());
 		}
 	}
-
-	// znajdz jakis sposob zeby zmienialo polskie znaki na znaki ascii 
-	// ale bez skanowania kazdego oddzielnego chatsounda, bo to by rozwalalo
-	// performance pewnie
 
 	std::sort(chatsounds.begin(), chatsounds.end(), sort_by_size);
 	return chatsounds;

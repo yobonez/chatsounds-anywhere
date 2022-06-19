@@ -1,10 +1,10 @@
 #include "ChatsoundType.h"
 
-ChatsoundType::ChatsoundType(int len, std::string k, std::string val)
-	: length(len), key(k), value(val)
+ChatsoundType::ChatsoundType(std::string k, std::string val)
+	:  key(k), value(val)
 {};
 
 bool sort_by_size(const ChatsoundType& lhs, const ChatsoundType& rhs)
 {
-	return lhs.length > rhs.length;
+	return lhs.key.length() > rhs.key.length();
 }

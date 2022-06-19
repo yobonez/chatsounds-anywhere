@@ -11,6 +11,8 @@
 #include "ChatsoundType.h"
 #include "Modifiers.h"
 
+#include "SLChatsoundPlayer.h"
+
 namespace fs = std::filesystem;
 
 /*Returns chat memory address and a handle to the process*/
@@ -42,12 +44,13 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 	- vector of chatsounds,
 	- ChatSoundPlayer object to run everything after processing input,
 */
-void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, ChatSoundPlayer& chatsound_player_ref)
+void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, ChatSoundPlayer& chatsound_player_ref, SLChatsoundPlayer& slcht_ref)
 {
-	std::vector<std::pair<std::string, short int>> toPlay;
+	std::vector<std::pair<std::string, std::array<int, 4>>> toPlay;
 
 	Modifiers modifiers;
 	std::array<int, 4> params_and_args = { -1, 0, 0, 0 };
+	bool has_effects = false;
 
 	while (content_copy != "")
 	{
@@ -72,9 +75,17 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 					if (id < 0) content_copy = std::regex_replace(content_copy, rgx, "");
 
 					content_copy = Utils::trim(content_copy);
-					toPlay.emplace_back(std::make_pair(chatsound, id));
+					toPlay.emplace_back(std::make_pair(chatsound, params_and_args));
 
 					std::cout << "Current chatsound: " << chatsound << " | id: " << id << ", hasEcho: " << hasEcho << std::endl;
+					
+					// check for effects
+					for (int i = 1; i < params_and_args.size(); i++)
+					{
+						if (params_and_args[i] > 0)
+							has_effects = true;
+						break;
+					}
 					break;
 				}
 			}
@@ -96,14 +107,22 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 
 	for (auto& chatsound : toPlay)
 	{
-		chatsound_player_ref.addChatSound(chatsound.first, chatsounds_ref);
+		//chatsound_player_ref.addChatSound(chatsound.first, chatsounds_ref);
+		slcht_ref.add_chatsounds(chatsound.first, chatsounds_ref);
 	}
 
-	chatsound_player_ref.playChatSound(toPlay);
+	if (has_effects == true)
+		slcht_ref.play_chatsounds(toPlay, EffectFlags::HAS_EFFECTS);
+	else
+		slcht_ref.play_chatsounds(toPlay, EffectFlags::NO_EFFECTS);
+
+	//chatsound_player_ref.playChatSound(toPlay);
 }
 
 int main ()
 {
+	SLChatsoundPlayer l;
+
 	std::pair<HANDLE, uintptr_t> hProcess_and_ChatAddr = getChatAddr();
 
 	ChatSoundPlayer chatsound_player;
@@ -149,7 +168,7 @@ int main ()
 					Sleep(100);
 					continue;
 				}
-				parseChatsounds(content, chatsounds, chatsound_player);
+				parseChatsounds(content, chatsounds, chatsound_player, l);
 			}
 			else
 			{
