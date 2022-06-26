@@ -1,18 +1,15 @@
 #pragma once
-#include "soloud.h"
-#include "soloud_wav.h"
+#include <iostream>
 #include <vector>
 #include <string>
-#include <iostream>
-#include "ChatsoundType.h"
 #include <random>
 #include <filesystem>
 #include <array>
-
-enum EffectFlags {
-	NO_EFFECTS = 1,
-	HAS_EFFECTS = 2
-};
+#include <thread>
+#include "soloud.h"
+#include "soloud_wav.h"
+#include "utils.h"
+#include "ChatsoundType.h"
 
 class SLChatsoundPlayer
 {
@@ -21,14 +18,18 @@ public:
 	~SLChatsoundPlayer();
 
 	void add_chatsounds(std::string name, std::vector<ChatsoundType>& chatsounds_ref);
-	void play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> chatsounds, enum EffectFlags ef);
+
+	void play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> chatsounds);
 
 private:
-	void play(std::vector<ChatsoundType> t_b_p, enum EffectFlags& ef_ref);
-
+	void play(std::vector<ChatsoundType> t_b_p);
 	SoLoud::Soloud sl;
-	SoLoud::Wav wav;						// will be used when there are no VST effects to apply
-	std::vector<SoLoud::Wav> wav_container; // will be used when there is a need to apply some VST effects on a single chatsound or more
+	SoLoud::Wav wav;
+	SoLoud::Wav wav2;
+
+	//std::array<SoLoud::Wav, size> wav_container; 
+
+	std::vector<SoLoud::handle> wav_handles;
 	std::vector<ChatsoundType> chatsound_cache;
 
 	std::random_device rd;

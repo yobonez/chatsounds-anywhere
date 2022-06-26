@@ -21,3 +21,15 @@ std::string Utils::trim(const std::string& s)
 		return "";
 	}
 }
+
+void Utils::wavcontainer_deleter(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl)
+{
+	while (sl.getActiveVoiceCount() > 0)
+	{
+		Sleep(300);
+		std::cout << sl.getActiveVoiceCount() << std::endl;
+	}
+	Sleep(2000);
+	delete[] wav_cntr;
+	return;
+}

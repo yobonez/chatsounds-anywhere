@@ -44,7 +44,7 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 	- vector of chatsounds,
 	- ChatSoundPlayer object to run everything after processing input,
 */
-void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, ChatSoundPlayer& chatsound_player_ref, SLChatsoundPlayer& slcht_ref)
+void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, SLChatsoundPlayer& slcht_ref)
 {
 	std::vector<std::pair<std::string, std::array<int, 4>>> toPlay;
 
@@ -111,21 +111,16 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 		slcht_ref.add_chatsounds(chatsound.first, chatsounds_ref);
 	}
 
-	if (has_effects == true)
-		slcht_ref.play_chatsounds(toPlay, EffectFlags::HAS_EFFECTS);
-	else
-		slcht_ref.play_chatsounds(toPlay, EffectFlags::NO_EFFECTS);
-
+	slcht_ref.play_chatsounds(toPlay);
 	//chatsound_player_ref.playChatSound(toPlay);
 }
 
 int main ()
 {
-	SLChatsoundPlayer l;
-
+	SLChatsoundPlayer chatsound_player;
 	std::pair<HANDLE, uintptr_t> hProcess_and_ChatAddr = getChatAddr();
 
-	ChatSoundPlayer chatsound_player;
+	//ChatSoundPlayer chatsound_player;
 	ChatsoundLoader loader;
 	std::vector<ChatsoundType> chatsounds = loader.Scan();
 
@@ -168,7 +163,7 @@ int main ()
 					Sleep(100);
 					continue;
 				}
-				parseChatsounds(content, chatsounds, chatsound_player, l);
+				parseChatsounds(content, chatsounds, chatsound_player);
 			}
 			else
 			{
