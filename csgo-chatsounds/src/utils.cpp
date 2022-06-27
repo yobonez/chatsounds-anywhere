@@ -29,7 +29,6 @@ void Utils::wavcontainer_deleter(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl)
 		Sleep(300);
 		std::cout << sl.getActiveVoiceCount() << std::endl;
 	}
-	Sleep(2000);
 	delete[] wav_cntr;
 	return;
 }

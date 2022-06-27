@@ -32,25 +32,10 @@ void SLChatsoundPlayer::play(std::vector<ChatsoundType> t_b_p)
 	std::string command;
 
 	int tbpsize = t_b_p.size();
-	/*
-	if (ef_ref == EffectFlags::NO_EFFECTS)
-	{
-		for (auto& keyval : t_b_p)
-			command = command + " " + "\"" + keyval.value + "\"";
-
-		command = command + " " + out_filename;
-
-		system(command.c_str());
-
-		wav.load(out_filename.c_str());
-		sl.play(wav);
-	}
-	*/
 
 	double delay = 0.0;
 	int t_b_p_index = -1;
 	SoLoud::handle temp_handle;
-	//std::unique_ptr<SoLoud::Wav[]> wav_container(new SoLoud::Wav[tbpsize]);
 	SoLoud::Wav* wav_container = new SoLoud::Wav[tbpsize]; // i used an array of SoLoud::Wav's here bcuz std::vector for some reason doesn't work
 														   // and a play() from each element doesn't play until it hits the last one that is the
 														   // only one that plays
@@ -59,12 +44,9 @@ void SLChatsoundPlayer::play(std::vector<ChatsoundType> t_b_p)
 	{
 		int random_int = uni(rng);
 		t_b_p_index++;
-		//wav_container[t_b_p_index] = SoLoud::Wav(); // sprawdz se potem emplace czy dziala
 
 		if (t_b_p_index == 0)
 		{
-			//wav.load(keyval.value.c_str());
-			//delay = delay + wav.getLength();
 			wav_container[t_b_p_index].load(keyval.value.c_str());
 			//std::cout << "one delay: " << wav_container[t_b_p_index].getLength() << std::endl;
 			delay = delay + wav_container[t_b_p_index].getLength(); // delay (length of silence) for the next chatsound that will play technically at the same time,
@@ -74,27 +56,29 @@ void SLChatsoundPlayer::play(std::vector<ChatsoundType> t_b_p)
 		}
 		else
 		{
+			SoLoud::Wav check_length;
+
 			command = std::format("sox -n -r 44100 -c 2 \"tmpchatsound-silence-{}.ogg\" trim 0.0 {}", random_int, delay);
 			system(command.c_str());
 
 			command = std::format("sox \"tmpchatsound-silence-{}.ogg\"", random_int) + " \"" + keyval.value + "\" " + std::format("\"tmpchatsound-{}-{}.ogg\"", keyval.key, random_int);
 			system(command.c_str());
 
-			//wav2.load((std::format("tmpchatsound-{}-{}.ogg", keyval.key, random_int)).c_str());
-			//delay = delay + wav2.getLength();
 			wav_container[t_b_p_index].load((std::format("tmpchatsound-{}-{}.ogg", keyval.key, random_int)).c_str());
 			//std::cout << "one delay: " << wav_container[t_b_p_index].getLength() << std::endl;
-			delay = delay + wav_container[t_b_p_index].getLength();
+
+			check_length.load(keyval.value.c_str());
+			delay = delay + check_length.getLength();
 			//std::cout << delay << std::endl;
 		}
 
 		sl.play(wav_container[t_b_p_index]);
-
-		// git, dziala, nie mam pojecia czy to ma memory leak, ale dziala, jedynie problem z delayami, jakos dziwnie dzialaja
 	}
+
 	std::thread deleter(Utils::wavcontainer_deleter, wav_container, std::ref(this->sl));
 	deleter.detach();
-	// it frees memory after ABSOLUTELY EVERYTHING STOPPED, i need to fix it
+	// it frees memory after ABSOLUTELY EVERYTHING STOPPED, i need to fix it sometime 
+	// if its possible to check for each sound in soloud, for now idk
 
 	/*for (int i = 0; i < wav_container.size(); i++)
 	{
@@ -135,10 +119,10 @@ void SLChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::
 
 			selected = uni(rng);
 
-			to_be_played.emplace_back(duplicates[selected]);
+			to_be_played.emplace_back(duplicates[selected]); // random
 		}
 		else
-			to_be_played.emplace_back(duplicates[selected]); // here actually not random
+			to_be_played.emplace_back(duplicates[selected]); // explicitly selected
 
 		if (selected > duplicates.size()) return;
 

@@ -24,8 +24,6 @@ public:
 private:
 	void play(std::vector<ChatsoundType> t_b_p);
 	SoLoud::Soloud sl;
-	SoLoud::Wav wav;
-	SoLoud::Wav wav2;
 
 	//std::array<SoLoud::Wav, size> wav_container; 
 
