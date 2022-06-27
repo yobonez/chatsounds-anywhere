@@ -75,8 +75,11 @@ void SLChatsoundPlayer::play(std::vector<ChatsoundType> t_b_p)
 		sl.play(wav_container[t_b_p_index]);
 	}
 
-	std::thread deleter(Utils::wavcontainer_deleter, wav_container, std::ref(this->sl));
-	deleter.detach();
+	if (wav_container_cleaner_active == false)
+	{
+		std::thread deleter(Utils::wavcontainer_deleter, wav_container, std::ref(this->sl), std::ref(this->wav_container_cleaner_active));
+		deleter.detach();
+	}
 	// it frees memory after ABSOLUTELY EVERYTHING STOPPED, i need to fix it sometime 
 	// if its possible to check for each sound in soloud, for now idk
 
@@ -130,7 +133,13 @@ void SLChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::
 	play(to_be_played);
 }
 
+void SLChatsoundPlayer::stopall_playing()
+{
+	sl.stopAll();
+}
+
 SLChatsoundPlayer::~SLChatsoundPlayer()
 {
 	sl.deinit();
 }
+// finally i can do some effects

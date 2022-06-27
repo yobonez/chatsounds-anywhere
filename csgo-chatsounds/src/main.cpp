@@ -6,7 +6,7 @@
 
 #include "proc.h"
 #include "utils.h"
-#include "ChatSoundPlayer.h"
+//#include "ChatSoundPlayer.h"
 #include "ChatsoundLoader.h"
 #include "ChatsoundType.h"
 #include "Modifiers.h"
@@ -39,11 +39,6 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 }
 
 
-/*Takes: 
-	- input message, 
-	- vector of chatsounds,
-	- ChatSoundPlayer object to run everything after processing input,
-*/
 void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, SLChatsoundPlayer& slcht_ref)
 {
 	std::vector<std::pair<std::string, std::array<int, 4>>> toPlay;
@@ -157,11 +152,7 @@ int main ()
 				if (content == "sh")
 				{
 					prevMessage = msg;
-
-					Mix_HaltChannel(-1);
-					//Mix_Resume(-1);
-					Sleep(100);
-					continue;
+					chatsound_player.stopall_playing();
 				}
 				parseChatsounds(content, chatsounds, chatsound_player);
 			}

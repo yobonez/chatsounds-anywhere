@@ -5,5 +5,5 @@
 
 namespace Utils {
 	std::string trim(const std::string& s);
-	void wavcontainer_deleter(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl);
+	void wavcontainer_deleter(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl, bool& cleaner_active);
 }
