@@ -10,6 +10,7 @@
 #include "soloud_wav.h"
 #include "utils.h"
 #include "ChatsoundType.h"
+#include "ChatsoundEffects.h"
 
 class SLChatsoundPlayer
 {
@@ -17,15 +18,16 @@ public:
 	SLChatsoundPlayer();
 	~SLChatsoundPlayer();
 
-	void add_chatsounds(std::string name, std::vector<ChatsoundType>& chatsounds_ref);
+	void add_chatsounds(ChatsoundType name);
 
-	void play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> chatsounds);
+	void play_chatsounds(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> chatsounds);
 
 	void stopall_playing();
 
 private:
-	void play(std::vector<ChatsoundType> t_b_p);
+	void play(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> t_b_p);
 	SoLoud::Soloud sl;
+	ChatsoundEffects effects;
 
 	//std::array<SoLoud::Wav, size> wav_container; 
 

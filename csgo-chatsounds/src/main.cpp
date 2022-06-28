@@ -6,7 +6,6 @@
 
 #include "proc.h"
 #include "utils.h"
-//#include "ChatSoundPlayer.h"
 #include "ChatsoundLoader.h"
 #include "ChatsoundType.h"
 #include "Modifiers.h"
@@ -39,13 +38,12 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 }
 
 
-void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, SLChatsoundPlayer& slcht_ref)
+void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, SLChatsoundPlayer& chtsndplayer_ref)
 {
-	std::vector<std::pair<std::string, std::array<int, 4>>> toPlay;
+	std::vector<std::pair<ChatsoundType, std::array<int, 4>>> toPlay;
 
 	Modifiers modifiers;
 	std::array<int, 4> params_and_args = { -1, 0, 0, 0 };
-	bool has_effects = false;
 
 	while (content_copy != "")
 	{
@@ -54,7 +52,6 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 			for (auto& chtsnd : chatsounds_ref)
 			{
 				std::string chatsound = chtsnd.key;
-				std::string chatsound_path = chtsnd.value;
 				std::regex rgx("\\b^(" + chatsound + ")\\b");
 				std::smatch match;
 
@@ -70,17 +67,10 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 					if (id < 0) content_copy = std::regex_replace(content_copy, rgx, "");
 
 					content_copy = Utils::trim(content_copy);
-					toPlay.emplace_back(std::make_pair(chatsound, params_and_args));
+					toPlay.emplace_back(std::make_pair(chtsnd, params_and_args));
 
 					std::cout << "Current chatsound: " << chatsound << " | id: " << id << ", hasEcho: " << hasEcho << std::endl;
 					
-					// check for effects
-					for (int i = 1; i < params_and_args.size(); i++)
-					{
-						if (params_and_args[i] > 0)
-							has_effects = true;
-						break;
-					}
 					break;
 				}
 			}
@@ -102,12 +92,10 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 
 	for (auto& chatsound : toPlay)
 	{
-		//chatsound_player_ref.addChatSound(chatsound.first, chatsounds_ref);
-		slcht_ref.add_chatsounds(chatsound.first, chatsounds_ref);
+		chtsndplayer_ref.add_chatsounds(chatsound.first);
 	}
 
-	slcht_ref.play_chatsounds(toPlay);
-	//chatsound_player_ref.playChatSound(toPlay);
+	chtsndplayer_ref.play_chatsounds(toPlay);
 }
 
 int main ()
@@ -115,7 +103,6 @@ int main ()
 	SLChatsoundPlayer chatsound_player;
 	std::pair<HANDLE, uintptr_t> hProcess_and_ChatAddr = getChatAddr();
 
-	//ChatSoundPlayer chatsound_player;
 	ChatsoundLoader loader;
 	std::vector<ChatsoundType> chatsounds = loader.Scan();
 

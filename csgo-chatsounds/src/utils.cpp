@@ -22,7 +22,7 @@ std::string Utils::trim(const std::string& s)
 	}
 }
 
-void Utils::wavcontainer_deleter(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl, bool& cleaner_active)
+void Utils::wavcontainer_deleter(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl, bool& cleaner_active, std::vector<SoLoud::handle>& hndls)
 {
 	cleaner_active = true;
 
@@ -31,6 +31,7 @@ void Utils::wavcontainer_deleter(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl, bool
 		Sleep(300);
 	}
 
+	hndls.clear();
 	delete[] wav_cntr;
 	cleaner_active = false;
 

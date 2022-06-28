@@ -175,7 +175,6 @@
     <ClCompile Include="src\ChatsoundEffects.cpp" />
     <ClCompile Include="src\proc.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\ChatSoundPlayer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\SLChatsoundPlayer.h" />
@@ -187,7 +186,6 @@
     <ClInclude Include="external\nlohmann\single_include\json.hpp" />
     <ClInclude Include="src\ChatsoundEffects.h" />
     <ClInclude Include="src\proc.h" />
-    <ClInclude Include="src\ChatSoundPlayer.h" />
     <ClInclude Include="src\utils.h" />
     <ClInclude Include="src\Modifiers.h" />
   </ItemGroup>
