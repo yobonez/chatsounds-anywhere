@@ -8,36 +8,25 @@ SLChatsoundPlayer::SLChatsoundPlayer()
 }
 
 // add chatsound to cache
-void SLChatsoundPlayer::add_chatsounds(ChatsoundType chatsound)
+void SLChatsoundPlayer::add_chatsounds(std::vector<ChatsoundType>& toAdd_ref)
 {
-	if (chatsound_cache.size() == 0)
-	{
-		chatsound_cache.emplace_back(chatsound.key, chatsound.value);
-		return;
-	}
-
-	for (auto& keyval : chatsound_cache)
-	{
-		if (chatsound.key == keyval.key)
-			return;
-		else
-			chatsound_cache.emplace_back(chatsound.key, chatsound.value);
-	}
+	for (auto& keyval : toAdd_ref)
+		chatsound_cache.emplace_back(keyval.key, keyval.value);
 }
 
-void SLChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int,4>>> t_b_p)
+void SLChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> t_b_p)
 {
 	std::mt19937 rng(rd());
 	std::uniform_int_distribution<int> uni(0, 20);
 
 	std::string command;
 
-	int tbpsize = t_b_p.size();
+	int t_b_p_size = t_b_p.size();
 
 	double delay = 0.0;
 	int t_b_p_index = -1;
 
-	SoLoud::Wav* wav_container = new SoLoud::Wav[tbpsize]; // i used an array of SoLoud::Wav's here bcuz std::vector for some reason doesn't work
+	SoLoud::Wav* wav_container = new SoLoud::Wav[t_b_p_size]; // i used an array of SoLoud::Wav's here bcuz std::vector for some reason doesn't work
 														   // and a play() from each element doesn't play until it hits the last one that is the
 														   // only one that plays
 
@@ -82,35 +71,32 @@ void SLChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int
 	}
 	// it frees memory after ABSOLUTELY EVERYTHING STOPPED, i need to fix it sometime 
 	// for now idk
-
-	/*for (int i = 0; i < wav_container.size(); i++)
-	{
-		temp_handle = sl.play(wav_container[i]);
-		wav_handles.push_back(temp_handle);
-	}*/
 }
 
-void SLChatsoundPlayer::play_chatsounds(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> chatsounds)
+void SLChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> toPlay)
 {
 	std::vector<std::pair<ChatsoundType, std::array<int, 4>>> to_be_played;
-	for (auto& chatsound : chatsounds)
+
+	for (auto& chatsound : toPlay)
 	{
-		std::string chatsound_name = chatsound.first.key;    //     ~~~~~~~| - future arguments,
+		std::string chatsound_name = chatsound.first;
+		std::array<int, 4> params_args = chatsound.second;
+														 //     ~~~~~~~| - future arguments,
 														 //	    ^		   unused for now, i just need to imagine the picture of how it will work
-		int chatsound_id_modifier = chatsound.second[0]; // {X, X, X, X}
+		int chatsound_id_modifier = params_args[0];      // {X, X, X, X}
 													     //  ^ 
 
 		int selected_id = chatsound_id_modifier - 1;
 
 		// adding chatsound duplicates to a new container of type ChatsoundType (name, path)
 		// to randomly choose one of them later.
-		std::vector<std::pair<ChatsoundType, std::array<int,4>>> duplicates;
+		std::vector<ChatsoundType> duplicates;
 
 
 		for (auto& keyval : chatsound_cache)
 		{
 			if (keyval.key == chatsound_name)
-				duplicates.emplace_back(chatsound.first, chatsound.second);
+				duplicates.emplace_back(keyval);
 		}
 
 
@@ -125,10 +111,10 @@ void SLChatsoundPlayer::play_chatsounds(std::vector<std::pair<ChatsoundType, std
 
 			selected_id = uni(rng);
 
-			to_be_played.emplace_back(duplicates[selected_id]); // random
+			to_be_played.emplace_back(duplicates[selected_id], params_args); // random
 		}
 		else
-			to_be_played.emplace_back(duplicates[selected_id]); // explicitly selected
+			to_be_played.emplace_back(duplicates[selected_id], params_args); // explicitly selected
 
 		if (selected_id > duplicates.size()) return;
 

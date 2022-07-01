@@ -11,7 +11,7 @@
    parameters_and_arguments[3] // second echo arg
    parameters_and_arguments[4] ...
 */
-std::array<int, 4> Modifiers::search(std::string& input, std::string& curr_chatsound)
+std::array<int, 4> Modifiers::search(std::string input, std::string& curr_chatsound)
 {
 	// przebuduj to w jakis inny sposob, np. bardziej jakiœ enum z flag¹, jaki to efekt, a potem
 	// argumenty do niego
@@ -40,10 +40,15 @@ std::array<int, 4> Modifiers::search(std::string& input, std::string& curr_chats
 	std::regex clr_rgx_id("(#[0-9]+)$");
 	std::regex clr_rgx_echo = rgx_echo; 
 
+	// this maybe could be done without any loops, let's try something different later
+	// for now this stays with quick if statement fix 
 	while (all_modifiers != "")
 	{
-		parameters_and_arguments[0] = find_id(all_modifiers, match, rgx_id, clr_rgx_id);	   // id
-		parameters_and_arguments[1] = find_echo(all_modifiers, match, rgx_echo, clr_rgx_echo); // 0 - no echo effect, 1 - echo effect with default args, 2 - echo effect with custom args
+		if (parameters_and_arguments[0] == -1)
+			parameters_and_arguments[0] = find_id(all_modifiers, match, rgx_id, clr_rgx_id);	   // id
+
+		if (parameters_and_arguments[1] == 0)
+			parameters_and_arguments[1] = find_echo(all_modifiers, match, rgx_echo, clr_rgx_echo); // 0 - no echo effect, 1 - echo effect with default args, 2 - echo effect with custom args
 	}
 	//parameters_and_arguments[2] =;
 	//parameters_and_arguments[3] =;

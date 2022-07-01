@@ -6,6 +6,8 @@
 #include <filesystem>
 #include <array>
 #include <thread>
+#include <map>
+
 #include "soloud.h"
 #include "soloud_wav.h"
 #include "utils.h"
@@ -18,11 +20,13 @@ public:
 	SLChatsoundPlayer();
 	~SLChatsoundPlayer();
 
-	void add_chatsounds(ChatsoundType name);
+	void add_chatsounds(std::vector<ChatsoundType>& toAdd_ref);
 
-	void play_chatsounds(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> chatsounds);
+	void play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> toPlay);
 
 	void stopall_playing();
+
+	std::vector<ChatsoundType> chatsound_cache;
 
 private:
 	void play(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> t_b_p);
@@ -32,7 +36,6 @@ private:
 	//std::array<SoLoud::Wav, size> wav_container; 
 
 	std::vector<SoLoud::handle> wav_handles;
-	std::vector<ChatsoundType> chatsound_cache;
 
 	bool wav_container_cleaner_active = false;
 	std::random_device rd;

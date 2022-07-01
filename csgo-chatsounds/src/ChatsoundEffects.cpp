@@ -26,3 +26,4 @@ void ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> params
 }
 
 // make another applyeffects function but using threads and wav_handles from SLChatsoundPlayer.cpp
+ 

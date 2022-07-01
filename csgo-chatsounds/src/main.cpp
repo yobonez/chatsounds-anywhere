@@ -26,11 +26,9 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 	hProcess = OpenProcess(PROCESS_VM_READ, NULL, procId);
 
 	uintptr_t dynamicPtrBaseAddr = moduleBase + 0x0023B09C;
-	//std::cout << "DPB: " << "0x" << std::hex << dynamicPtrBaseAddr << std::endl;
 
 	std::vector<unsigned int> chatOffsets = { 0x14C, 0x74, 0xBC, 0x24, 0x2A8, 0x124, 0x0 };
 	uintptr_t chatAddr = FindDMAAddy(hProcess, dynamicPtrBaseAddr, chatOffsets);
-	//std::cout << "CA: " << "0x" << std::hex << chatAddr << std::endl;
 
 	hProcess_and_ChatAddr = std::make_pair(hProcess, chatAddr);
 
@@ -40,19 +38,21 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 
 void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, SLChatsoundPlayer& chtsndplayer_ref)
 {
-	std::vector<std::pair<ChatsoundType, std::array<int, 4>>> toPlay;
+	std::vector<ChatsoundType> toAdd; // get rid of ChatsoundType, it starts to complicate things
+
+	std::vector<std::pair<std::string, std::array<int, 4>>> toPlay;
 
 	Modifiers modifiers;
 	std::array<int, 4> params_and_args = { -1, 0, 0, 0 };
 
 	while (content_copy != "")
 	{
-		for (unsigned short int i = 0; i < toPlay.size() + 1; i++)
+		for (int i = 0; i < toPlay.size() + 1; i++)
 		{
 			for (auto& chtsnd : chatsounds_ref)
 			{
-				std::string chatsound = chtsnd.key;
-				std::regex rgx("\\b^(" + chatsound + ")\\b");
+				std::string chatsound_name = chtsnd.key;
+				std::regex rgx("\\b^(" + chatsound_name + ")\\b");
 				std::smatch match;
 
 				if (content_copy == "")
@@ -60,17 +60,32 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 
 				if (std::regex_search(content_copy, match, rgx) && match.str(0) != "")
 				{
-					params_and_args = modifiers.search(content_copy, chatsound); // tried to get it by refence, but it got thanos snapped out of reality bcuz optimization on release mode
+					params_and_args = modifiers.search(content_copy, chatsound_name);
 					int id = params_and_args[0];
-					int hasEcho = params_and_args[1];
+					
+					if (toAdd.size() == 0)
+						toAdd.emplace_back(chtsnd.key, chtsnd.value);
+					else
+					{
+						if (std::find(toAdd.begin(), toAdd.end(), chtsnd) == toAdd.end())
+							toAdd.emplace_back(chtsnd.key, chtsnd.value);
+					} // prevent adding EXACTLY the same chatsounds to cache (i. e. the same key and value)
 
-					if (id < 0) content_copy = std::regex_replace(content_copy, rgx, "");
+					std::string current_chtsnd_name = chatsound_name;
+
+					ChatsoundType next_chtsnd = *(&chtsnd + 1);
+					std::string next_chtsnd_name = next_chtsnd.key;
+
+					if (current_chtsnd_name == next_chtsnd_name)
+					{
+						continue;
+					} // continue adding other duplicates of chatsounds with the same name but with other paths to cache
+					
+					/*if (id < 0)*/ content_copy = std::regex_replace(content_copy, rgx, "");
 
 					content_copy = Utils::trim(content_copy);
-					toPlay.emplace_back(std::make_pair(chtsnd, params_and_args));
 
-					std::cout << "Current chatsound: " << chatsound << " | id: " << id << ", hasEcho: " << hasEcho << std::endl;
-					
+					toPlay.emplace_back(chtsnd.key, params_and_args);
 					break;
 				}
 			}
@@ -88,12 +103,9 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 				content_copy.erase(0, 1);
 			}
 		}
-	}
+	} // while(content_copy != "")
 
-	for (auto& chatsound : toPlay)
-	{
-		chtsndplayer_ref.add_chatsounds(chatsound.first);
-	}
+	chtsndplayer_ref.add_chatsounds(toAdd);
 
 	chtsndplayer_ref.play_chatsounds(toPlay);
 }
