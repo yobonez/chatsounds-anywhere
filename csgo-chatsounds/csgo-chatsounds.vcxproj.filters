@@ -24,19 +24,10 @@
     <ClCompile Include="src\ChatsoundEffects.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="external\BerVibrato\BerVibrato.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\BerVibrato\Lfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="external\BerVibrato\Ringbuffer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\utils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Modifiers.cpp">
+    <ClCompile Include="src\ChatsoundModifiers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\ChatsoundLoader.cpp">
@@ -45,7 +36,7 @@
     <ClCompile Include="src\ChatsoundType.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\SLChatsoundPlayer.cpp">
+    <ClCompile Include="src\ChatsoundPlayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -56,22 +47,10 @@
     <ClInclude Include="src\ChatsoundEffects.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="external\BerVibrato\BerVibrato.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\BerVibrato\Lfo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\BerVibrato\Ringbuffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Modifiers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="external\nlohmann\single_include\json.hpp">
+    <ClInclude Include="src\ChatsoundModifiers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ChatsoundLoader.h">
@@ -80,7 +59,7 @@
     <ClInclude Include="src\ChatsoundType.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\SLChatsoundPlayer.h">
+    <ClInclude Include="src\ChatsoundPlayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

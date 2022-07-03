@@ -2,7 +2,7 @@
 #include <vector>
 #include <string>
 
-#include "nlohmann/single_include/json.hpp"
+#include "single_include/json.hpp"
 #include "ChatsoundType.h"
 
 using json = nlohmann::json;

@@ -6,11 +6,11 @@
 
 #include "proc.h"
 #include "utils.h"
+
 #include "ChatsoundLoader.h"
 #include "ChatsoundType.h"
-#include "Modifiers.h"
-
-#include "SLChatsoundPlayer.h"
+#include "ChatsoundModifiers.h"
+#include "ChatsoundPlayer.h"
 
 namespace fs = std::filesystem;
 
@@ -36,13 +36,13 @@ std::pair<HANDLE, uintptr_t> getChatAddr()
 }
 
 
-void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, SLChatsoundPlayer& chtsndplayer_ref)
+void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chatsounds_ref, ChatsoundPlayer& chtsndplayer_ref)
 {
 	std::vector<ChatsoundType> toAdd; // get rid of ChatsoundType, it starts to complicate things
 
 	std::vector<std::pair<std::string, std::array<int, 4>>> toPlay;
 
-	Modifiers modifiers;
+	ChatsoundModifiers modifiers;
 	std::array<int, 4> params_and_args = { -1, 0, 0, 0 };
 
 	while (content_copy != "")
@@ -112,7 +112,7 @@ void parseChatsounds(std::string content_copy, std::vector<ChatsoundType>& chats
 
 int main ()
 {
-	SLChatsoundPlayer chatsound_player;
+	ChatsoundPlayer chatsound_player;
 	std::pair<HANDLE, uintptr_t> hProcess_and_ChatAddr = getChatAddr();
 
 	ChatsoundLoader loader;

@@ -73,12 +73,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>E:\dev\soloud20200207\lib;E:\dev\SDL2_mixer-2.0.4\lib\x86;E:\dev\SDL2-2.0.20\lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>E:\dev\soloud20200207\include;E:\dev\rubberband\single;E:\dev\rubberband\rubberband;E:\repos\csgo-chatsounds-restore\csgo-chatsounds\external;E:\dev\SDL2-2.0.20\include;E:\dev\SDL2_mixer-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\dev\nlohmann;E:\dev\soloud20200207\include;E:\dev\SDL2-2.0.20\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <LibraryPath>E:\dev\soloud20200207\lib;E:\dev\SDL2_mixer-2.0.4\lib\x86;E:\dev\SDL2-2.0.20\lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>E:\dev\soloud20200207\include;E:\dev\rubberband\single;E:\dev\rubberband\rubberband;E:\repos\csgo-chatsounds-restore\csgo-chatsounds\external;E:\dev\SDL2-2.0.20\include;E:\dev\SDL2_mixer-2.0.4\include;$(IncludePath)</IncludePath>
+    <IncludePath>E:\dev\nlohmann;E:\dev\soloud20200207\include;E:\dev\SDL2-2.0.20\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -97,13 +97,13 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>E:\dev\soloud20200207\include;E:\dev\rubberband\single;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/validate-charset %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>soloud_static.lib;SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>soloud_static.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -115,7 +115,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>E:\dev\soloud20200207\include;E:\dev\rubberband\single;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalOptions>/validate-charset %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
@@ -123,7 +123,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>soloud_static.lib;SDL2.lib;SDL2main.lib;SDL2_mixer.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>soloud_static.lib;SDL2.lib;SDL2main.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -161,33 +161,26 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\SLChatsoundPlayer.cpp" />
+    <ClCompile Include="src\ChatsoundPlayer.cpp" />
     <ClCompile Include="src\ChatsoundType.cpp" />
     <ClCompile Include="src\ChatsoundLoader.cpp" />
     <ClCompile Include="src\utils.cpp" />
-    <ClCompile Include="src\Modifiers.cpp" />
+    <ClCompile Include="src\ChatsoundModifiers.cpp" />
     <Text Include="LICENSE">
       <FileType>Document</FileType>
     </Text>
-    <ClCompile Include="external\BerVibrato\BerVibrato.cpp" />
-    <ClCompile Include="external\BerVibrato\Lfo.cpp" />
-    <ClCompile Include="external\BerVibrato\Ringbuffer.cpp" />
     <ClCompile Include="src\ChatsoundEffects.cpp" />
     <ClCompile Include="src\proc.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\SLChatsoundPlayer.h" />
+    <ClInclude Include="src\ChatsoundPlayer.h" />
     <ClInclude Include="src\ChatsoundType.h" />
     <ClInclude Include="src\ChatsoundLoader.h" />
-    <ClInclude Include="external\BerVibrato\BerVibrato.h" />
-    <ClInclude Include="external\BerVibrato\Lfo.h" />
-    <ClInclude Include="external\BerVibrato\Ringbuffer.h" />
-    <ClInclude Include="external\nlohmann\single_include\json.hpp" />
     <ClInclude Include="src\ChatsoundEffects.h" />
     <ClInclude Include="src\proc.h" />
     <ClInclude Include="src\utils.h" />
-    <ClInclude Include="src\Modifiers.h" />
+    <ClInclude Include="src\ChatsoundModifiers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
