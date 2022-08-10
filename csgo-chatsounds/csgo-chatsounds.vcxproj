@@ -161,6 +161,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ChatsoundParser.cpp" />
     <ClCompile Include="src\ChatsoundPlayer.cpp" />
     <ClCompile Include="src\ChatsoundType.cpp" />
     <ClCompile Include="src\ChatsoundLoader.cpp" />
@@ -174,6 +175,7 @@
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ChatsoundParser.h" />
     <ClInclude Include="src\ChatsoundPlayer.h" />
     <ClInclude Include="src\ChatsoundType.h" />
     <ClInclude Include="src\ChatsoundLoader.h" />
