@@ -7,7 +7,7 @@ ChatsoundParser::ChatsoundParser()
 	chatsounds = initialize();
 }
 
-
+// TODO: initialize with selected audio device
 std::vector<ChatsoundType> ChatsoundParser::initialize() 
 {
 	ChatsoundLoader loader;

@@ -37,7 +37,7 @@ private:
 
 	std::vector<SoLoud::handle> wav_handles;
 
-	bool wav_container_cleaner_active = false;
+	bool garbage_collector_active = false;
 	std::random_device rd;
 };
 

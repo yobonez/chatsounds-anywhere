@@ -7,7 +7,6 @@ ChatsoundPlayer::ChatsoundPlayer()
 	sl.init();
 }
 
-// add chatsound to cache
 void ChatsoundPlayer::add_chatsounds(std::vector<ChatsoundType>& toAdd_ref)
 {
 	for (auto& keyval : toAdd_ref)
@@ -26,9 +25,7 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 	double delay = 0.0;
 	int t_b_p_index = -1;
 
-	SoLoud::Wav* wav_container = new SoLoud::Wav[t_b_p_size]; // i used an array of SoLoud::Wav's here bcuz std::vector for some reason doesn't work
-														   // and a play() from each element doesn't play until it hits the last one that is the
-														   // only one that plays
+	SoLoud::Wav* wav_container = new SoLoud::Wav[t_b_p_size];
 
 	for (auto& keyval : t_b_p)
 	{
@@ -64,13 +61,8 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 		wav_handles.emplace_back(temp_handle);
 	}
 
-	if (wav_container_cleaner_active == false)
-	{
-		std::thread deleter(Utils::wavcontainer_deleter, wav_container, std::ref(this->sl), std::ref(this->wav_container_cleaner_active), std::ref(this->wav_handles));
-		deleter.detach();
-	}
-	// it frees memory after ABSOLUTELY EVERYTHING STOPPED, i need to fix it sometime 
-	// for now idk
+	std::thread deleter(Utils::garbage_collector, wav_container, std::ref(this->sl), /*std::ref(this->garbage_collector_active),*/ std::ref(this->wav_handles));
+	deleter.detach();
 }
 
 void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> toPlay)
@@ -82,13 +74,13 @@ void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::ar
 		std::string chatsound_name = chatsound.first;
 		std::array<int, 4> params_args = chatsound.second;
 														 //     ~~~~~~~| - future arguments,
-														 //	    ^		   unused for now, i just need to imagine the picture of how it will work
+														 //	    ^		   unused for now
 		int chatsound_id_modifier = params_args[0];      // {X, X, X, X}
 													     //  ^ 
 
 		int selected_id = chatsound_id_modifier - 1;
 
-		// adding chatsound duplicates to a new container of type ChatsoundType (name, path)
+		// adding chatsound duplicates to a new container of type ChatsoundType
 		// to randomly choose one of them later.
 		std::vector<ChatsoundType> duplicates;
 

@@ -3,10 +3,12 @@
 #include <iostream>
 #include <filesystem>
 #include <fstream>
-#include <ctime>
 #include "single_include/json.hpp"
 
 #include "ChatsoundType.h"
+
+// BIG TODO: Standardize .ogg files to stop SoX from complaining and stopping sound
+// or match file parameters on the fly (?)
 
 using json = nlohmann::json;
 namespace fs = std::filesystem;
@@ -17,7 +19,7 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 	std::vector<ChatsoundType> chatsounds;
 
 
-	if (CheckPathFileExists() == false)
+	if (!CheckPathFileExists())
 	{
 		fs::path path("Z:\\chatsounds-polskisandbox-metastruct\\sound\\chatsounds\\autoadd");
 		std::string ext(".ogg");
@@ -31,11 +33,10 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 		std::string root_dir = path.stem().string();
 
 		std::string omit;
-		int count = 0;
 
+		std::cout << "No chatsounds list found.\nPreparing chatsounds list from selected root directory...\n";
 		for (auto& p : fs::recursive_directory_iterator(path))
 		{
-			count++;
 			current_parent_dir_path = p.path().parent_path().string();
 			current_parent_dir = p.path().parent_path().stem().string();
 
@@ -77,15 +78,19 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 
 		std::ofstream writer;
 		writer.open(json_file_name);
-		writer << json_chatsounds.dump(4, ' ', true, json::error_handler_t::ignore); // ignore all chatsounds containing polish or other (choose ur language) specific characters, nlohmann-json can't handle it
+		std::cout << "Writing to " + json_file_name + "...\n";
+		writer << json_chatsounds.dump(4, ' ', true, json::error_handler_t::ignore); // ignore all chatsounds containing language specific characters, nlohmann-json can't handle it
 																					 // maybe i will make a fix to this someday
+		std::cout << "Done.\n";
 		writer.close();
 	}
 	else
 	{
 		std::ifstream reader(json_file_name);
+		std::cout << "Reading chatsounds list " + json_file_name + "...\n";
 		reader >> json_chatsounds;
 		reader.close();
+		std::cout << "Done.\n";
 	}
 
 	for (auto it = json_chatsounds.begin(); it != json_chatsounds.end(); ++it)
@@ -97,9 +102,8 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 				chatsounds.emplace_back(it.key(), subit.value());
 			}
 		}
-		else {
+		else
 			chatsounds.emplace_back(it.key(), it.value());
-		}
 	}
 
 	std::sort(chatsounds.begin(), chatsounds.end(), sort_by_size);

@@ -4,9 +4,12 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
-csgo-chatsounds/LICENSE*.dll
-csgo-chatsounds/*.dll
-csgo-chatsounds/*.txt
+main.cpp
+proc.h
+proc.cpp
+chatsounds-anywhere/LICENSE*.dll
+chatsounds-anywhere/*.dll
+chatsounds-anywhere/*.txt
 
 
 # User-specific files
@@ -23,6 +26,8 @@ csgo-chatsounds/*.txt
 mono_crash.*
 
 # Build results
+ExeTest/
+DExeTest/
 [Dd]ebug/
 [Dd]ebugPublic/
 [Rr]elease/
