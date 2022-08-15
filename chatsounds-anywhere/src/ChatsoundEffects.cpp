@@ -1,14 +1,16 @@
 #include "ChatsoundEffects.h"
 #include "ChatsoundModifiers.h"
 
-void ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> params_args)
+double ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> params_args)
 {
 	if (params_args[1] == 0)
 	{
-		return;
+		return 0.0;
 	}
+
 	else if (params_args[1] == ChatsoundModifiers::Effect::ECHO) // echo filter
 	{
+		double return_decay = 0.0;
 		float delay, decay;
 		delay = params_args[2];
 		decay = params_args[3];
@@ -16,12 +18,18 @@ void ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> params
 		if (delay != 0 && decay != 0)
 		{
 			echof.setParams(delay, decay);
+			return_decay = decay;
 		}
 		else
+		{
 			echof.setParams(0.3, 0.7); // default args
+			return_decay = 0.7;
+		}
 
 		wav->setFilter(0, &echof);
+		return return_decay;
 	}
+
 	else if (params_args[1] == ChatsoundModifiers::Effect::REVERB)
 	{
 		/*float mode, room_size, damp, width;
@@ -39,20 +47,31 @@ void ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> params
 
 		reverbf.setParams(1, 0.5, 0.5, 1);
 		wav->setFilter(1, &reverbf);
+		
+		return 0;
 	}
+
 	else if (params_args[1] == ChatsoundModifiers::Effect::ROBOTIZE)
 	{
 		robotizef.setParams(80, 3);
 		wav->setFilter(2, &robotizef);
+
+		return 0;
 	}
+
 	else if (params_args[1] == ChatsoundModifiers::Effect::FFT)
 	{
 		wav->setFilter(3, &fftf);
+
+		return 0;
 	}
+
 	else if (params_args[1] == ChatsoundModifiers::Effect::FLANGER)
 	{
 		flangerf.setParams(0.023, 4);
 		wav->setFilter(4, &flangerf);
+
+		return 0;
 	}
 }
 

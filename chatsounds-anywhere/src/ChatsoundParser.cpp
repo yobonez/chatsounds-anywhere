@@ -2,14 +2,39 @@
 #include "ChatsoundLoader.h"
 #include "ChatsoundPlayer.h"
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 ChatsoundParser::ChatsoundParser()
 {
+	chatsound_player.gc();
 	chatsounds = initialize();
 }
 
 // TODO: initialize with selected audio device
 std::vector<ChatsoundType> ChatsoundParser::initialize() 
 {
+	int dependencies_all_good = false;
+
+	for (auto& file : fs::recursive_directory_iterator("./"))
+	{
+		std::string path = file.path().string();
+		size_t found = path.find("sox-14.4.2");
+
+		if (found != std::string::npos)
+		{
+			dependencies_all_good = true;
+			break;
+		}
+	}
+
+	if (!dependencies_all_good)
+	{
+		std::cout << "No sox binary found. Download sox-14.4.2-win32.zip from https://sourceforge.net/projects/sox/files/sox/14.4.2/ \nAnd put sox-14.4.2 directory in this folder.\n";
+		system("pause");
+		exit(-1);
+	}
+
 	ChatsoundLoader loader;
 	return loader.Scan();
 }
@@ -17,6 +42,7 @@ void ChatsoundParser::parse(std::string content_copy)
 {
 	if (content_copy == "sh")
 	{
+		chatsound_player.gc();
 		chatsound_player.stopall_playing();
 		return;
 	}
@@ -65,7 +91,7 @@ void ChatsoundParser::parse(std::string content_copy)
 					params_and_args = modifiers.search(content_copy, chatsound_name);
 					int id = params_and_args[0];
 
-					/*if (id < 0)*/ content_copy = std::regex_replace(content_copy, rgx, "");
+					content_copy = std::regex_replace(content_copy, rgx, "");
 
 					content_copy = Utils::trim(content_copy);
 

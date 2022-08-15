@@ -1,4 +1,5 @@
 #include "ChatsoundPlayer.h"
+#include "ChatsoundModifiers.h"
 
 namespace fs = std::filesystem;
 
@@ -15,6 +16,8 @@ void ChatsoundPlayer::add_chatsounds(std::vector<ChatsoundType>& toAdd_ref)
 
 void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> t_b_p)
 {
+	// TODO: separate parameters and arguments
+
 	std::mt19937 rng(rd());
 	std::uniform_int_distribution<int> uni(0, 20);
 
@@ -29,25 +32,58 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 
 	for (auto& keyval : t_b_p)
 	{
+		double effect_decay = 0.0;
 		int random_int = uni(rng);
 		t_b_p_index++;
 
 		if (t_b_p_index == 0)
 		{
 			wav_container[t_b_p_index].load(keyval.first.value.c_str());
+
+			// this code is repeated (but slightly different) at line 73
+			if (keyval.second[1] == ChatsoundModifiers::Effect::ECHO)
+			{
+				effect_decay = effects.apply_effects(&wav_container[t_b_p_index], keyval.second);
+				effect_decay = effect_decay * 3;
+				delay = delay + effect_decay;
+
+				command = std::format("sox-14.4.2\\sox.exe -n -r 44100 -c 2 \"tmpchatsound-effectdecay-{}.ogg\" trim 0.0 {}", random_int, effect_decay);
+				system(command.c_str());
+
+				command = std::format("sox-14.4.2\\sox.exe \"{}\" \"tmpchatsound-effectdecay-{}.ogg\" \"tmpchatsound-{}-{}(with effects).ogg\"", keyval.first.value, random_int, keyval.first.key, random_int);
+				system(command.c_str());
+				wav_container[t_b_p_index].load((std::format("tmpchatsound-{}-{}(with effects).ogg", keyval.first.key, random_int)).c_str());
+			}
+			// end of repeated code
 			delay = delay + wav_container[t_b_p_index].getLength();
 		}
 		else
 		{
 			SoLoud::Wav check_length;
 
-			command = std::format("sox -n -r 44100 -c 2 \"tmpchatsound-silence-{}.ogg\" trim 0.0 {}", random_int, delay);
+			command = std::format("sox-14.4.2\\sox.exe -n -r 44100 -c 2 \"tmpchatsound-silence-{}.ogg\" trim 0.0 {}", random_int, delay);
 			system(command.c_str());
 
-			command = std::format("sox \"tmpchatsound-silence-{}.ogg\"", random_int) + " \"" + keyval.first.value + "\" " + std::format("\"tmpchatsound-{}-{}.ogg\"", keyval.first.key, random_int);
+			command = std::format("sox-14.4.2\\sox.exe \"tmpchatsound-silence-{}.ogg\"", random_int) + " \"" + keyval.first.value + "\" " + std::format("\"tmpchatsound-{}-{}.ogg\"", keyval.first.key, random_int);
 			system(command.c_str());
 
 			wav_container[t_b_p_index].load((std::format("tmpchatsound-{}-{}.ogg", keyval.first.key, random_int)).c_str());
+
+			//
+			if (keyval.second[1] == ChatsoundModifiers::Effect::ECHO)
+			{
+				effect_decay = effects.apply_effects(&wav_container[t_b_p_index], keyval.second);
+				effect_decay = effect_decay * 3;
+				delay = delay + effect_decay;
+
+				command = std::format("sox-14.4.2\\sox.exe -n -r 44100 -c 2 \"tmpchatsound-effectdecay-{}.ogg\" trim 0.0 {}", random_int, effect_decay);
+				system(command.c_str());
+
+				command = std::format("sox-14.4.2\\sox.exe \"tmpchatsound-{}-{}.ogg\" \"tmpchatsound-effectdecay-{}.ogg\" \"tmpchatsound-{}-{}(with effects).ogg\"", keyval.first.key, random_int, random_int, keyval.first.key, random_int);
+				system(command.c_str());
+				wav_container[t_b_p_index].load((std::format("tmpchatsound-{}-{}(with effects).ogg", keyval.first.key, random_int)).c_str());
+			}
+			//
 
 			check_length.load(keyval.first.value.c_str());
 			delay = delay + check_length.getLength();
@@ -61,8 +97,7 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 		wav_handles.emplace_back(temp_handle);
 	}
 
-	std::thread deleter(Utils::garbage_collector, wav_container, std::ref(this->sl), /*std::ref(this->garbage_collector_active),*/ std::ref(this->wav_handles));
-	deleter.detach();
+	gc(wav_container);
 }
 
 void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> toPlay)
@@ -112,6 +147,19 @@ void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::ar
 
 	}
 	play(to_be_played);
+}
+
+void ChatsoundPlayer::gc() 
+{
+	SoLoud::Wav* dummy = new SoLoud::Wav[1];
+	std::thread deleter(Utils::garbage_collector, dummy, std::ref(this->sl), std::ref(this->wav_handles));
+	deleter.detach();
+}
+
+void ChatsoundPlayer::gc(SoLoud::Wav* wav_container_ptr)
+{
+	std::thread deleter(Utils::garbage_collector, wav_container_ptr, std::ref(this->sl), std::ref(this->wav_handles));
+	deleter.detach();
 }
 
 void ChatsoundPlayer::stopall_playing()

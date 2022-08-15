@@ -10,6 +10,7 @@ proc.cpp
 chatsounds-anywhere/LICENSE*.dll
 chatsounds-anywhere/*.dll
 chatsounds-anywhere/*.txt
+sox-14.4.2
 
 
 # User-specific files

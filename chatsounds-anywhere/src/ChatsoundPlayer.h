@@ -24,6 +24,9 @@ public:
 
 	void play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> toPlay);
 
+	void gc();
+	void gc(SoLoud::Wav* wav_container_ref);
+
 	void stopall_playing();
 
 	std::vector<ChatsoundType> chatsound_cache;
@@ -36,8 +39,6 @@ private:
 	//std::array<SoLoud::Wav, size> wav_container; 
 
 	std::vector<SoLoud::handle> wav_handles;
-
-	bool garbage_collector_active = false;
 	std::random_device rd;
 };
 

@@ -134,7 +134,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='DExeTest|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>E:\dev\soloud20200207\lib;E:\dev\SDL2_mixer-2.0.4\lib\x86;E:\dev\SDL2-2.0.20\lib\x86;$(LibraryPath)</LibraryPath>
-    <IncludePath>$(SolutionDir)csgo-chatsounds;E:\dev\nlohmann;E:\dev\soloud20200207\include;E:\dev\SDL2-2.0.20\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)chatsounds-anywhere;E:\dev\nlohmann;E:\dev\soloud20200207\include;E:\dev\SDL2-2.0.20\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)$(Configuration)</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

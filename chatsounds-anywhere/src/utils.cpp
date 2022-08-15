@@ -1,4 +1,7 @@
 #include "utils.h"
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 // https://www.techiedelight.com/trim-string-cpp-remove-leading-trailing-spaces/
 std::string Utils::trim(const std::string& s)
@@ -33,5 +36,14 @@ void Utils::garbage_collector(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl_ref, std
 
 	delete[] wav_cntr;
 
+	for (auto& file : fs::recursive_directory_iterator("./"))
+	{
+		std::string name = file.path().stem().string();
+		size_t found = name.find("tmpchatsound");
+		if (found != std::string::npos)
+		{ 
+			fs::remove(file);
+		}
+	}
 	return;
 }
