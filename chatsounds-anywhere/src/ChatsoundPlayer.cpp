@@ -55,6 +55,7 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 				wav_container[t_b_p_index].load((std::format("tmpchatsound-{}-{}(with effects).ogg", keyval.first.key, random_int)).c_str());
 			}
 			// end of repeated code
+			// TODO: delay added due to echo decay is too long
 			delay = delay + wav_container[t_b_p_index].getLength();
 		}
 		else

@@ -30,7 +30,7 @@ std::vector<ChatsoundType> ChatsoundParser::initialize()
 
 	if (!dependencies_all_good)
 	{
-		std::cout << "No sox binary found. Download sox-14.4.2-win32.zip from https://sourceforge.net/projects/sox/files/sox/14.4.2/ \nAnd put sox-14.4.2 directory in this folder.\n";
+		std::cerr << "No sox binary found. Download sox-14.4.2-win32.zip from https://sourceforge.net/projects/sox/files/sox/14.4.2/ \nAnd put sox-14.4.2 directory in this folder.\n";
 		system("pause");
 		exit(-1);
 	}

@@ -6,6 +6,7 @@
 #include "single_include/json.hpp"
 
 #include "ChatsoundType.h"
+#include "ChatsoundConfiguration.h"
 
 // BIG TODO: Standardize .ogg files to stop SoX from complaining and stopping sound
 // or match file parameters on the fly (?)
@@ -18,10 +19,16 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 	json json_chatsounds;
 	std::vector<ChatsoundType> chatsounds;
 
+	ChatsoundConfiguration cfg;
+	cfg.LoadConfiguration();
+
+	auto rootDirEntry = cfg.GetEntry("root_dir_path");
+	auto chatsoundPathsNameEntry = cfg.GetEntry("chatsound_paths_file_name");
+	json_file_name = chatsoundPathsNameEntry.value;
 
 	if (!CheckPathFileExists())
 	{
-		fs::path path("Z:\\chatsounds-polskisandbox-metastruct\\sound\\chatsounds\\autoadd");
+		fs::path root_dir_path(rootDirEntry.value);
 		std::string ext(".ogg");
 
 		std::string temp;
@@ -30,12 +37,12 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 		std::string current_parent_dir;
 		std::string current_parent_dir_path;
 
-		std::string root_dir = path.stem().string();
+		std::string root_dir = root_dir_path.stem().string();
 
 		std::string omit;
 
 		std::cout << "No chatsounds list found.\nPreparing chatsounds list from selected root directory...\n";
-		for (auto& p : fs::recursive_directory_iterator(path))
+		for (auto& p : fs::recursive_directory_iterator(root_dir_path))
 		{
 			current_parent_dir_path = p.path().parent_path().string();
 			current_parent_dir = p.path().parent_path().stem().string();

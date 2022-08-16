@@ -310,6 +310,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\ChatsoundConfiguration.cpp" />
     <ClCompile Include="src\ChatsoundParser.cpp" />
     <ClCompile Include="src\ChatsoundPlayer.cpp" />
     <ClCompile Include="src\ChatsoundType.cpp" />
@@ -325,6 +326,7 @@
     <ClCompile Include="src\ChatsoundEffects.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ChatsoundConfiguration.h" />
     <ClInclude Include="include\Chatsounds.h" />
     <ClInclude Include="src\ChatsoundParser.h" />
     <ClInclude Include="src\ChatsoundPlayer.h" />
