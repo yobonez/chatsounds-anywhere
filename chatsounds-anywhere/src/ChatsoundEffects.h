@@ -13,7 +13,7 @@
 class ChatsoundEffects 
 {
 public:
-	double apply_effects(SoLoud::Wav* wav, std::array<int,4> params_args);
+	double apply_effects(SoLoud::Wav* wav, std::array<int,2> params);
 private:
 	SoLoud::EchoFilter echof;
 	SoLoud::FreeverbFilter reverbf;

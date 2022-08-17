@@ -49,10 +49,10 @@ void ChatsoundParser::parse(std::string content_copy)
 
 	std::vector<ChatsoundType> toAdd; // get rid of ChatsoundType, it starts to complicate things
 
-	std::vector<std::pair<std::string, std::array<int, 4>>> toPlay;
+	std::vector<std::pair<std::string, std::array<int, 2>>> toPlay;
 
 	ChatsoundModifiers modifiers;
-	std::array<int, 4> params_and_args = { -1, 0, 0, 0 };
+	std::array<int, 2> params = { -1, 0 };
 
 	while (content_copy != "")
 	{
@@ -88,14 +88,14 @@ void ChatsoundParser::parse(std::string content_copy)
 						continue;
 					} // continue adding other duplicates of chatsounds with the same name but with other paths to cache
 
-					params_and_args = modifiers.search(content_copy, chatsound_name);
-					int id = params_and_args[0];
+					params = modifiers.search(content_copy, chatsound_name);
+					int id = params[0];
 
 					content_copy = std::regex_replace(content_copy, rgx, "");
 
 					content_copy = Utils::trim(content_copy);
 
-					toPlay.emplace_back(chtsnd.key, params_and_args);
+					toPlay.emplace_back(chtsnd.key, params);
 					break;
 				}
 			}

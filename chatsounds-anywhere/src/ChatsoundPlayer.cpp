@@ -14,7 +14,7 @@ void ChatsoundPlayer::add_chatsounds(std::vector<ChatsoundType>& toAdd_ref)
 		chatsound_cache.emplace_back(keyval.key, keyval.value);
 }
 
-void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> t_b_p)
+void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 2>>> t_b_p)
 {
 	// TODO: separate parameters and arguments
 
@@ -35,13 +35,14 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 		double effect_decay = 0.0;
 		int random_int = uni(rng);
 		t_b_p_index++;
+		int effect_modifier = keyval.second[1];
 
 		if (t_b_p_index == 0)
 		{
 			wav_container[t_b_p_index].load(keyval.first.value.c_str());
 
 			// this code is repeated (but slightly different) at line 73
-			if (keyval.second[1] == ChatsoundModifiers::Effect::ECHO)
+			if ((effect_modifier & ChatsoundModifiers::Effect::ECHO) != 0)
 			{
 				effect_decay = effects.apply_effects(&wav_container[t_b_p_index], keyval.second);
 				effect_decay = effect_decay * 3;
@@ -71,7 +72,7 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 			wav_container[t_b_p_index].load((std::format("tmpchatsound-{}-{}.ogg", keyval.first.key, random_int)).c_str());
 
 			//
-			if (keyval.second[1] == ChatsoundModifiers::Effect::ECHO)
+			if ((effect_modifier & ChatsoundModifiers::Effect::ECHO) != 0)
 			{
 				effect_decay = effects.apply_effects(&wav_container[t_b_p_index], keyval.second);
 				effect_decay = effect_decay * 3;
@@ -101,18 +102,16 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 	gc(wav_container);
 }
 
-void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> toPlay)
+void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::array<int, 2>>> toPlay)
 {
-	std::vector<std::pair<ChatsoundType, std::array<int, 4>>> to_be_played;
+	std::vector<std::pair<ChatsoundType, std::array<int, 2>>> to_be_played;
 
 	for (auto& chatsound : toPlay)
 	{
 		std::string chatsound_name = chatsound.first;
-		std::array<int, 4> params_args = chatsound.second;
-														 //     ~~~~~~~| - future arguments,
-														 //	    ^		   unused for now
-		int chatsound_id_modifier = params_args[0];      // {X, X, X, X}
-													     //  ^ 
+		std::array<int, 2> params = chatsound.second;
+
+		int chatsound_id_modifier = params[0];
 
 		int selected_id = chatsound_id_modifier - 1;
 
@@ -139,10 +138,10 @@ void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::ar
 
 			selected_id = uni(rng);
 
-			to_be_played.emplace_back(duplicates[selected_id], params_args); // random
+			to_be_played.emplace_back(duplicates[selected_id], params); // random
 		}
 		else
-			to_be_played.emplace_back(duplicates[selected_id], params_args); // explicitly selected
+			to_be_played.emplace_back(duplicates[selected_id], params); // explicitly selected
 
 		if (selected_id > duplicates.size()) return;
 

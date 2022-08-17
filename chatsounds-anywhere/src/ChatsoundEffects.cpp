@@ -1,17 +1,17 @@
 #include "ChatsoundEffects.h"
 #include "ChatsoundModifiers.h"
 
-double ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> params_args)
+double ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 2> params)
 {
-	if (params_args[1] == 0)
+	double return_decay = 0.0;
+	if (params[1] == 0)
 	{
-		return 0.0;
+		return_decay = 0.0;
 	}
 
-	else if (params_args[1] == ChatsoundModifiers::Effect::ECHO) // echo filter
+	if ((params[1] & ChatsoundModifiers::Effect::ECHO) != 0) // echo filter
 	{
-		double return_decay = 0.0;
-		float delay, decay;
+		/*float delay, decay;
 		delay = params_args[2];
 		decay = params_args[3];
 
@@ -20,17 +20,17 @@ double ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> para
 			echof.setParams(delay, decay);
 			return_decay = decay;
 		}
-		else
-		{
-			echof.setParams(0.3, 0.7); // default args
-			return_decay = 0.7;
-		}
+		*/
+		//else
+		//{
+		echof.setParams(0.3, 0.7); // default args
+		return_decay = return_decay + 0.7;
+		//}
 
 		wav->setFilter(0, &echof);
-		return return_decay;
 	}
 
-	else if (params_args[1] == ChatsoundModifiers::Effect::REVERB)
+	if ((params[1] & ChatsoundModifiers::Effect::REVERB) != 0)
 	{
 		/*float mode, room_size, damp, width;
 
@@ -48,32 +48,31 @@ double ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 4> para
 		reverbf.setParams(1, 0.5, 0.5, 1);
 		wav->setFilter(1, &reverbf);
 		
-		return 0;
+		return_decay = return_decay + 0;
 	}
 
-	else if (params_args[1] == ChatsoundModifiers::Effect::ROBOTIZE)
+	if ((params[1] & ChatsoundModifiers::Effect::ROBOTIZE) != 0)
 	{
 		robotizef.setParams(80, 3);
 		wav->setFilter(2, &robotizef);
 
-		return 0;
+		return_decay = return_decay + 0;
 	}
 
-	else if (params_args[1] == ChatsoundModifiers::Effect::FFT)
+	if ((params[1] & ChatsoundModifiers::Effect::FFT) != 0)
 	{
 		wav->setFilter(3, &fftf);
 
-		return 0;
+		return_decay = return_decay + 0;
 	}
 
-	else if (params_args[1] == ChatsoundModifiers::Effect::FLANGER)
+	if ((params[1] & ChatsoundModifiers::Effect::FLANGER) != 0)
 	{
 		flangerf.setParams(0.023, 4);
 		wav->setFilter(4, &flangerf);
 
-		return 0;
+		return_decay = return_decay + 0;
 	}
+	return return_decay;
 }
-
-// make another applyeffects function but using threads and wav_handles from ChatsoundPlayer.cpp
  

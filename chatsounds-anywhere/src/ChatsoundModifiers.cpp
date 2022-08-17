@@ -1,19 +1,9 @@
 #include "ChatsoundModifiers.h"
 #include "utils.h"
 
-/* 
-   parameters_and_arguments[0] // id
-   parameters_and_arguments[1] // 0 - no effect, 
-								  1 - effect, 
-								  2 - effect arg 1
-								  3 - effect arg 2
-   parameters_and_arguments[2] 
-   parameters_and_arguments[3] 
-   parameters_and_arguments[4] ...
-*/
-std::array<int, 4> ChatsoundModifiers::search(std::string input, std::string& curr_chatsound)
+std::array<int, 2> ChatsoundModifiers::search(std::string input, std::string& curr_chatsound)
 {
-	std::array<int, 4> parameters_and_arguments = { -1, 0, 0, 0 };
+	std::array<int, 2> parameters = { -1, 0 };
 	std::string all_modifiers;
 
 	std::regex rgx("^(" + curr_chatsound + ")(#[0-9]+|:echo|:reverb|:robotize|:fft|:flanger)+");
@@ -54,16 +44,13 @@ std::array<int, 4> ChatsoundModifiers::search(std::string input, std::string& cu
 	// for now this stays with quick if statement fix 
 	while (all_modifiers != "")
 	{
-		if (parameters_and_arguments[0] == -1)
-			parameters_and_arguments[0] = find_id(all_modifiers, match, rgx_id, clr_rgx_id);	   // id
+		if (parameters[0] == -1)
+			parameters[0] = find_id(all_modifiers, match, rgx_id, clr_rgx_id);	   // id
 
-		find_effects(all_modifiers, match, effect_rgxs, parameters_and_arguments);
-			//parameters_and_arguments[1] = find_echo(all_modifiers, match, rgx_echo, clr_rgx_echo); // 0 - no echo effect, 1 - echo effect with default args, 2 - echo effect with custom args
+		find_effects(all_modifiers, match, effect_rgxs, parameters);
 	}
-	//parameters_and_arguments[2] =;
-	//parameters_and_arguments[3] =;
 
-	return parameters_and_arguments;
+	return parameters;
 }
 
 int ChatsoundModifiers::find_id(std::string& all_modifiers_ref , std::smatch& match, std::regex& rgx, std::regex& clr_rgx)
@@ -88,7 +75,7 @@ int ChatsoundModifiers::find_id(std::string& all_modifiers_ref , std::smatch& ma
 	return 0;
 }*/
 
-void ChatsoundModifiers::find_effects(std::string& all_modifiers_ref, std::smatch& match, std::array<std::regex, 5>& effect_rgxs_ref, std::array<int, 4>& p_a)
+void ChatsoundModifiers::find_effects(std::string& all_modifiers_ref, std::smatch& match, std::array<std::regex, 5>& effect_rgxs_ref, std::array<int, 2>& params)
 {
 	int eff_id = 0;
 	for (auto& effect_rgx : effect_rgxs_ref)
@@ -99,19 +86,19 @@ void ChatsoundModifiers::find_effects(std::string& all_modifiers_ref, std::smatc
 			switch (eff_id)
 			{
 			case 0:
-				p_a[1] |= Effect::ECHO;
+				params[1] |= Effect::ECHO;
 				break;
 			case 1:
-				p_a[1] |= Effect::REVERB;
+				params[1] |= Effect::REVERB;
 				break;
 			case 2:
-				p_a[1] |= Effect::ROBOTIZE;
+				params[1] |= Effect::ROBOTIZE;
 				break;
 			case 3:
-				p_a[1] |= Effect::FFT;
+				params[1] |= Effect::FFT;
 				break;
 			case 4:
-				p_a[1] |= Effect::FLANGER;
+				params[1] |= Effect::FLANGER;
 				break;
 			}
 		}

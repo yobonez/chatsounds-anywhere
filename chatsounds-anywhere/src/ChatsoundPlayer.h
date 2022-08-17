@@ -22,7 +22,7 @@ public:
 
 	void add_chatsounds(std::vector<ChatsoundType>& toAdd_ref);
 
-	void play_chatsounds(std::vector<std::pair<std::string, std::array<int, 4>>> toPlay);
+	void play_chatsounds(std::vector<std::pair<std::string, std::array<int, 2>>> toPlay);
 
 	void gc();
 	void gc(SoLoud::Wav* wav_container_ref);
@@ -32,7 +32,7 @@ public:
 	std::vector<ChatsoundType> chatsound_cache;
 
 private:
-	void play(std::vector<std::pair<ChatsoundType, std::array<int, 4>>> t_b_p);
+	void play(std::vector<std::pair<ChatsoundType, std::array<int, 2>>> t_b_p);
 	SoLoud::Soloud sl;
 	ChatsoundEffects effects;
 

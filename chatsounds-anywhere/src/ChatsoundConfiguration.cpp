@@ -32,7 +32,10 @@ void ChatsoundConfiguration::LoadConfiguration()
 	{
 		std::ofstream confFile;
 		confFile.open("./chatsounds-config.txt");
-		confFile << "# Put your chatsounds path here. Use \"/\" slashes. \nroot_dir_path = X:/my-example/path\nchatsound_paths_file_name = chatsound-paths-default.json";
+		confFile << "# This path will be used when generating list of audio files and its paths. Use \"/\" slashes."
+					"\nroot_dir_path = X:/my-example/path"
+					"\n\n# This is name of the list"
+					"\nchatsound_paths_file_name = chatsound-paths.json";
 		confFile.close();
 
 		std::cout << "Config file was created. Edit it and run program again.\n";

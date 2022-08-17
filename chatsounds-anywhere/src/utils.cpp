@@ -43,6 +43,7 @@ void Utils::garbage_collector(SoLoud::Wav* wav_cntr, SoLoud::Soloud& sl_ref, std
 		if (found != std::string::npos)
 		{ 
 			fs::remove(file);
+			// there's a case this code crashes entire app, check it out later
 		}
 	}
 	return;

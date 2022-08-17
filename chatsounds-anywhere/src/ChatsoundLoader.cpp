@@ -23,8 +23,8 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 	cfg.LoadConfiguration();
 
 	auto rootDirEntry = cfg.GetEntry("root_dir_path");
-	auto chatsoundPathsNameEntry = cfg.GetEntry("chatsound_paths_file_name");
-	json_file_name = chatsoundPathsNameEntry.value;
+	auto chatsoundPathsEntry = cfg.GetEntry("chatsound_paths_file_name");
+	json_file_name = chatsoundPathsEntry.value;
 
 	if (!CheckPathFileExists())
 	{
