@@ -69,7 +69,6 @@ void ChatsoundParser::parse(std::string content_copy)
 
 				if (std::regex_search(content_copy, match, rgx) && match.str(0) != "")
 				{
-
 					if (toAdd.size() == 0)
 						toAdd.emplace_back(chtsnd.key, chtsnd.value);
 					else
