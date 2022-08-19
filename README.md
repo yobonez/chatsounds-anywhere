@@ -1,13 +1,47 @@
 # chatsounds-anywhere
 
+## Contents
+- [How does it work?](#how-does-it-work)
+  - [Basic functionality](#basic-functionality) 
+  - [Modifiers](#modifiers)
+    - ["#" - Selection modifier](#selection-modifier)
+    - [Sound effects](#sound-effects)
+- [Configuration](#configuration)
+- [What is a root direcotory?](#what-is-a-root-directory)
+- [Setup for development](#setup-for-development)
+  - [Example code](#example-code-after-setup)
+
+##### [Example project for chat inside Counter-Strike Global Offensive](https://github.com/yobonez/csgo-chatsounds-example)
+
 ## How does it work?
-Basically, the program generates list of sound file names and its paths from selected root dir path (the one where you keep your sounds), and whatever you type will be scanned for phrases from that list.
+
+#### Basic functionality
+The program generates list of sound file names and its paths from selected root dir path (the one where you keep your sounds), and whatever you type will be scanned for phrases from that list.
 
 If any phrase matches it's counterpart from the list, it's going to be played.
 It is designed so that any other garbage in the message isn't going to disturb final output in any way.
 
 ![image](https://dl.dropboxusercontent.com/s/8ugkc39sg3t7bsw/chatsounds.png)
 
+#### Modifiers
+
+In the future there will be more of them.
+
+##### "#" - Selection modifier
+Example: ```multiple variant chatsound#2``` in [root dir example](#example) is ```multiple variant chatsound/2.ogg```
+
+If a chatsound has multiple variants or there is another chatsound in another category with the same name, you can choose exact one using this modifier.
+##### Sound effects 
+
+```":echo", ":reverb", ":robotize", ":fft", ":flanger"```
+
+Example: ```garbage:echo```
+
+They have fixed arguments for now. In the future, ability to pass parameters into them will be added. For example: ```:echo(3.1,2.5)``` (decay, delay)
+
+##### Modifiers can be stacked
+
+Example: ```multiple variant chatsound#2:echo:flanger```
 ## Configuration
 
 At first run, a configuration file will be generated where you can edit the root path to your sound files and change name of the json list file.
@@ -25,7 +59,7 @@ In case of examples that will be shown below, the ```root_dir_path``` will be ``
 ## What is a root directory?
 Inside root directory there are other folders (categories). You can name them whatever you want.
 
-There needs to be at least one category folder that will contain these files.
+There needs to be at least one category folder that will contain .ogg files.
 #### Example
 ```
   X:/
@@ -51,7 +85,7 @@ There needs to be at least one category folder that will contain these files.
             you name it.ogg
 ```
 
-From this, program will generate this list:
+From this tree, program will generate this list:
 
 ```
 "somesound" : "X:/root-dir/category1/somesound.ogg",
@@ -71,12 +105,12 @@ From this, program will generate this list:
 ```
 
 The ```multiple variant chatsound``` is an ordinary chatsound too. It just has multiple variants. If you type it out, random one will be played.
-To play exact one you need to use /***Modifiers**\*/ // todo description
+To play exact one you need to use ["#" - Selection modifier](#selection-modifier)
 
 In case of chatsound having the same name across categories, it will be handled the same way.
 
 
-#### Example directory structure based on the first image
+#### Example directory structure based on the first [image](#how-does-it-work)
 
 ```
  .../
@@ -97,6 +131,38 @@ In case of chatsound having the same name across categories, it will be handled 
             ...
 ```
 
-## How to use this lib?
+## Setup for development
 
-// TODO
+### Visual Studio 2019
+
+#### 1.
+![image](https://dl.dropboxusercontent.com/s/1852q5f56ylwsz5/VS2019%20setup.png)
+
+#### 2. [Download SoX](https://sourceforge.net/projects/sox/files/sox/14.4.2/) - Sound eXchange
+#### 3. Put these files in the same directory as your executable
+- chatsounds-anywhere.dll
+- SDL2.dll
+- sox-14.4.2/ <- if you execute directly from Visual Studio, put this folder also <u>next to the folder with your executable</u> i.e. before "Release" or "Debug" folder inside <u>solution folder</u>
+
+### Example code after setup
+This code gets user input and sends it into chatsound parser
+```
+#include <iostream>
+#include <string>
+
+#include "Chatsounds.h"
+
+int main()
+{
+    Chatsounds s;
+    while (true)
+    {
+        std::cout << "Input:\n> ";
+        std::string input;
+        std::getline(std::cin, input);
+
+        s.Parse(input);
+    }
+}
+
+```
