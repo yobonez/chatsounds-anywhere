@@ -8,7 +8,7 @@
 class ChatsoundConfiguration
 {
 private:
-	std::vector<std::string> valid_names = { "root_dir_path", "chatsound_paths_file_name"};
+	std::vector<std::string> valid_names = { "root_dir_path", "chatsound_paths_file_name", "audio_input" };
 public:
 	struct ConfigurationEntry
 	{
@@ -16,6 +16,8 @@ public:
 		std::string value;
 	};
 	std::vector<ConfigurationEntry> entries;
+
+	static void PrintAudioDevices();
 
 	void LoadConfiguration();
 	ConfigurationEntry GetEntry(std::string name);

@@ -7,7 +7,6 @@
     - ["#" - Selection modifier](#selection-modifier)
     - [Sound effects](#sound-effects)
 - [Configuration](#configuration)
-- [What is a root direcotory?](#what-is-a-root-directory)
 - [Setup for development](#setup-for-development)
   - [Example code](#example-code-after-setup)
 
@@ -44,7 +43,7 @@ They have fixed arguments for now. In the future, ability to pass parameters int
 Example: ```multiple variant chatsound#2:echo:flanger```
 ## Configuration
 
-At first run, a configuration file will be generated where you can edit the root path to your sound files and change name of the json list file.
+At first run, the configuration file will be generated where you can edit the root path to your sound files, change name of the json sound list file and audio input device.
 
 Contents of the config:
 ```
@@ -53,10 +52,31 @@ root_dir_path = X:/my-example/path
 
 # This is name of the list
 chatsound_paths_file_name = chatsound-paths.json
-```
-In case of examples that will be shown below, the ```root_dir_path``` will be ```X:/root-dir```
 
-## What is a root directory?
+# This is name of the input device
+audio_input = default
+```
+If you would like to change input device, use ```Chatsounds::PrintAvailableInputDevices(bool exit_after_print)``` to list them and then copy one from that list without quotes  and paste it to  ```audio_input``` value.
+
+Example:
+```After calling Chatsounds::PrintAvailableInputDevices```
+```
+Available input devices:
+ Default: "default"
+Audio device 0: "PL2766H (NVIDIA High Definition Audio)"
+Audio device 1: "G³oœniki (Realtek High Definition Audio)"
+Audio device 2: "CABLE Input (VB-Audio Virtual Cable)"            <- for example i choose this one
+Audio device 3: "VoiceMeeter Input (VB-Audio VoiceMeeter VAIO)"
+Audio device 4: "G³oœniki (Steam Streaming Speakers)"
+Audio device 5: "G³oœniki (Steam Streaming Microphone)"
+```
+
+Then in the config:
+```audio_input = CABLE Input (VB-Audio Virtual Cable)```
+
+In case of examples related to root directory that will be shown below, the ```root_dir_path``` will be ```X:/root-dir```
+
+### What is a root directory?
 Inside root directory there are other folders (categories). You can name them whatever you want.
 
 There needs to be at least one category folder that will contain .ogg files.
@@ -154,6 +174,7 @@ This code gets user input and sends it into chatsound parser
 
 int main()
 {
+    Chatsounds::PrintAvailableInputDevices(false); // print available input devices without exitting program
     Chatsounds s;
     while (true)
     {

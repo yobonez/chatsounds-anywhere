@@ -1,11 +1,20 @@
 #include "ChatsoundPlayer.h"
 #include "ChatsoundModifiers.h"
+#include "ChatsoundConfiguration.h"
 
 namespace fs = std::filesystem;
 
 ChatsoundPlayer::ChatsoundPlayer()
 {
-	sl.init();
+	ChatsoundConfiguration cfg;
+	cfg.LoadConfiguration();
+	auto cfg_audio_device = cfg.GetEntry("audio_input");
+	auto audio_device = cfg_audio_device.value;
+	
+	if (audio_device == "default")
+		sl.init();
+	else
+		sl.init(audio_device.c_str());
 }
 
 void ChatsoundPlayer::add_chatsounds(std::vector<ChatsoundType>& toAdd_ref)

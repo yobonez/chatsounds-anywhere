@@ -1,6 +1,5 @@
 #pragma once
 
-#ifdef CHATSOUNDS_DLL
 #include <iostream>
 class Chatsounds
 {
@@ -10,9 +9,15 @@ public:
 		It will take single message string and take care of the rest for you.
 		***
 		You just need to find out for yourself how to get the chat message and parse it here every once a while in a loop.
-
-		//TODO: repo with example code
 	*/
-	__declspec(dllexport) void Parse(std::string& input);
+	__declspec(dllexport) void Parse(std::string input);
+
+	/**
+		This function prints out all available input devices you would want to
+		use with chatsounds.
+	 
+		bool exit_after_print:
+		- true: exit after printing
+	 */
+	__declspec(dllexport) static void PrintAvailableInputDevices(bool exit_after_print);
 };
-#endif

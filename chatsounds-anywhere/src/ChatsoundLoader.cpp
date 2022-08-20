@@ -20,6 +20,7 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 	std::vector<ChatsoundType> chatsounds;
 
 	ChatsoundConfiguration cfg;
+
 	cfg.LoadConfiguration();
 
 	auto rootDirEntry = cfg.GetEntry("root_dir_path");
