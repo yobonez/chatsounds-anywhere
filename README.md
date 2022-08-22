@@ -158,8 +158,9 @@ In case of chatsound having the same name across categories, it will be handled 
 #### 1.
 ![image](https://dl.dropboxusercontent.com/s/1852q5f56ylwsz5/VS2019%20setup.png)
 
-#### 2. [Download SoX](https://sourceforge.net/projects/sox/files/sox/14.4.2/) - Sound eXchange
-#### 3. Put these files in the same directory as your executable
+#### 2. [Download SDL2 win32 dll](https://github.com/libsdl-org/SDL/releases/download/release-2.24.0/SDL2-2.24.0-win32-x86.zip) - Simple Directmedia Layer
+#### 3. [Download SoX](https://sourceforge.net/projects/sox/files/sox/14.4.2/) - Sound eXchange
+#### 4. Put these files in the same directory as your executable
 - chatsounds-anywhere.dll
 - SDL2.dll
 - sox-14.4.2/ <- if you execute directly from Visual Studio, put this folder also <u>next to the folder with your executable</u> i.e. before "Release" or "Debug" folder inside <u>solution folder</u>

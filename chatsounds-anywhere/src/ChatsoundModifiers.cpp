@@ -36,9 +36,8 @@ std::array<int, 2> ChatsoundModifiers::search(std::string input, std::string& cu
 		input = Utils::trim(input);
 	}
 
-	// Regexes for clearing the modifiers - some will differ from these that are for detecting, some will not
+	// Regexes for clearing the modifiers
 	std::regex clr_rgx_id("(#[0-9]+)$");
-	std::regex clr_rgx_echo = rgx_echo; 
 
 	// this maybe could be done without any loops, let's try something different later
 	// for now this stays with quick if statement fix 
