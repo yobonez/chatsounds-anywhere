@@ -4,6 +4,7 @@
 
 #include <WinNls32.h>
 
+// all of this... to just print out devices with language-specific characters in windows. GLOBALIZATION MOMENT
 void ChatsoundConfiguration::PrintAudioDevices()
 {
 	wchar_t szISOLang[5] = { 0 };

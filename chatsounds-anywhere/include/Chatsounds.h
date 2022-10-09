@@ -8,7 +8,7 @@ public:
 		This function must be used in some sort of infinite loop.
 		It will take single message string and take care of the rest for you.
 		***
-		You just need to find out for yourself how to get the chat message and parse it here every once a while in a loop.
+		You just need to find out for yourself how to get the chat message and parse it here.
 	*/
 	__declspec(dllexport) void Parse(std::string input);
 

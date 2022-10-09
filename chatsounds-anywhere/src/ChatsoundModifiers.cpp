@@ -6,37 +6,54 @@ std::array<int, 2> ChatsoundModifiers::search(std::string input, std::string& cu
 	std::array<int, 2> parameters = { -1, 0 };
 	std::string all_modifiers;
 
-	std::regex rgx("^(" + curr_chatsound + ")(#[0-9]+|:echo|:reverb|:robotize|:fft|:flanger)+");
+	std::regex rgx("^("+ curr_chatsound +"{1}(#[0-9]+|:echo|:reverb|:robotize|:fft|:flanger|:pitch)+(\(([0-9]+,)*[0-9]+\))?)");
 	std::smatch match;
 
 	// Patterns to get modifiers later one by one
 	std::regex rgx_id("([0-9]+)$"); // it doesn't generate any bugs (probably), because the if statement below already checks if the id has "#"
 									// it's just a note for me, cuz i was wondering, why it WORKS
+
 	std::regex rgx_echo("(:echo)$");
 	std::regex rgx_reverb("(:reverb)$");
 	std::regex rgx_robotize(":(robotize)$");
 	std::regex rgx_fft(":(fft)$");
 	std::regex rgx_flanger(":(flanger)$");
+	std::regex rgx_pitch(":(pitch)$");
 
 
-	std::array<std::regex, 5> effect_rgxs;
+	std::array<std::regex, 6> effect_rgxs;
 
 	effect_rgxs[0] = rgx_echo;
 	effect_rgxs[1] = rgx_reverb;
 	effect_rgxs[2] = rgx_robotize;
 	effect_rgxs[3] = rgx_fft;
 	effect_rgxs[4] = rgx_flanger;
+	effect_rgxs[5] = rgx_pitch;
 
-	if (std::regex_search(input, match, rgx))
+	size_t id_str_pos = input.find("#");
+	size_t effects_str_pos = input.find(":");
+
+	if (std::regex_search(input, match, rgx) && (id_str_pos != std::string::npos || effects_str_pos != std::string::npos))
 	{
-		std::regex rgx_ch("^(" + curr_chatsound + ")");
-		all_modifiers = match.str(0);
-		all_modifiers = std::regex_replace(all_modifiers, rgx_ch, "");
-		input = std::regex_replace(input, rgx, "");
+		size_t delimiter = 0;
+		if (id_str_pos != std::string::npos && effects_str_pos != std::string::npos)
+		{
+			if (id_str_pos > effects_str_pos) delimiter = id_str_pos;
+			else effects_str_pos = effects_str_pos;
+		}
+		else if (id_str_pos != std::string::npos)
+			delimiter = id_str_pos;
+		else if (effects_str_pos != std::string::npos)
+			delimiter = effects_str_pos;
+
+
+		size_t modifier_str_length = input.find(" ") - delimiter;
+		all_modifiers = input.substr(delimiter, modifier_str_length); // cut from any modifier onwards
+
+		input = input.substr(0, delimiter);
 		input = Utils::trim(input);
 	}
 
-	// Regexes for clearing the modifiers
 	std::regex clr_rgx_id("(#[0-9]+)$");
 
 	// this maybe could be done without any loops, let's try something different later
@@ -63,18 +80,8 @@ int ChatsoundModifiers::find_id(std::string& all_modifiers_ref , std::smatch& ma
 	return -1;
 }
 
-/*int ChatsoundModifiers::find_echo(std::string& all_modifiers_ref, std::smatch& match, std::regex& rgx, std::regex& clr_rgx)
-{
-	if (std::regex_search(all_modifiers_ref, match, rgx))
-	{
-		clear_modifiers(all_modifiers_ref, clr_rgx);
-		return 1;
-	}
-	// if something return 2;
-	return 0;
-}*/
 
-void ChatsoundModifiers::find_effects(std::string& all_modifiers_ref, std::smatch& match, std::array<std::regex, 5>& effect_rgxs_ref, std::array<int, 2>& params)
+void ChatsoundModifiers::find_effects(std::string& all_modifiers_ref, std::smatch& match, std::array<std::regex, 6>& effect_rgxs_ref, std::array<int, 2>& params)
 {
 	int eff_id = 0;
 	for (auto& effect_rgx : effect_rgxs_ref)
@@ -99,6 +106,8 @@ void ChatsoundModifiers::find_effects(std::string& all_modifiers_ref, std::smatc
 			case 4:
 				params[1] |= Effect::FLANGER;
 				break;
+			case 5:
+				params[1] |= Effect::PITCH;
 			}
 		}
 		eff_id++;

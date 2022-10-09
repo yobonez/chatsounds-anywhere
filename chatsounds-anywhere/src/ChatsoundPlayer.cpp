@@ -25,8 +25,6 @@ void ChatsoundPlayer::add_chatsounds(std::vector<ChatsoundType>& toAdd_ref)
 
 void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 2>>> t_b_p)
 {
-	// TODO: separate parameters and arguments
-
 	std::mt19937 rng(rd());
 	std::uniform_int_distribution<int> uni(0, 20);
 
@@ -65,7 +63,7 @@ void ChatsoundPlayer::play(std::vector<std::pair<ChatsoundType, std::array<int, 
 				wav_container[t_b_p_index].load((std::format("tmpchatsound-{}-{}(with effects).ogg", keyval.first.key, random_int)).c_str());
 			}
 			// end of repeated code
-			// TODO: delay added due to echo decay is too long
+
 			delay = delay + wav_container[t_b_p_index].getLength();
 		}
 		else
@@ -150,7 +148,7 @@ void ChatsoundPlayer::play_chatsounds(std::vector<std::pair<std::string, std::ar
 			to_be_played.emplace_back(duplicates[selected_id], params); // random
 		}
 		else
-			to_be_played.emplace_back(duplicates[selected_id], params); // explicitly selected
+			to_be_played.emplace_back(duplicates[selected_id], params); // explicitly selected by user
 
 		if (selected_id > duplicates.size()) return;
 

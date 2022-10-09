@@ -115,6 +115,7 @@ std::vector<ChatsoundType> ChatsoundLoader::Scan()
 	}
 
 	std::sort(chatsounds.begin(), chatsounds.end(), sort_by_size);
+	// TODO: sort inside json due to performance
 	return chatsounds;
 }
 

@@ -58,7 +58,7 @@ void ChatsoundParser::parse(std::string content_copy)
 		for (int i = 0; i < toPlay.size() + 1; i++)
 		{
 			//TODO: search through cache
-			
+
 			for (auto& chtsnd : chatsounds)
 			{
 				std::string chatsound_name = chtsnd.key;

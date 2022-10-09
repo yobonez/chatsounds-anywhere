@@ -73,6 +73,13 @@ double ChatsoundEffects::apply_effects(SoLoud::Wav* wav, std::array<int, 2> para
 
 		return_decay = return_decay + 0;
 	}
+
+	/*
+	if ((params[1] & ChatsoundModifiers::Effect::PITCH) != 0)
+	{
+		
+	}
+	*/
 	return return_decay;
 }
  
